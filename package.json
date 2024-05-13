@@ -1,0 +1,23 @@
+{
+  "name": "config-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "generate": "npx prisma generate",
+    "migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
+    "push": "npx prisma push"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.13.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.13.0"
+  }
+}

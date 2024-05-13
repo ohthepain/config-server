@@ -1,0 +1,5 @@
+curl localhost:3000/projects
+curl -X PUT localhost:3000/projects -d "name=Bob"
+curl -X DELETE localhost:3000/projects -d "name=Bob"
+curl -X PUT localhost:3000/branches -H "Content-Type: application/json" -d '{"name": "BobsBranch", "projectId": "ff6dd669-e6b7-43dd-b583-3f57a3feec14"}'
+curl -X DELETE localhost:3000/branches -d "name=BobsBranch&projectId=ff6dd669-e6b7-43dd-b583-3f57a3feec14"

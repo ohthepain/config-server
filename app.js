@@ -10,8 +10,11 @@ var configsRouter = require('./routes/configs');
 var branchesRouter = require('./routes/branches');
 var environmentsRouter = require('./routes/environments');
 var projectsRouter = require('./routes/projects');
+var rolesRouter = require('./routes/roles');
+var authRouter = require('./routes/auth');
 
 const { PrismaClient } = require('@prisma/client')
+const { authenticateToken } = require('./controllers/auth')
 
 var app = express();
 
@@ -38,10 +41,16 @@ app.use('/configs', configsRouter)
 app.use('/branches', branchesRouter)
 app.use('/environments', environmentsRouter)
 app.use('/projects', projectsRouter)
+app.use('/roles', rolesRouter)
+app.use('/auth', authRouter)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
+
+app.get('/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'Welcome to the protected route!', user: req.user });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

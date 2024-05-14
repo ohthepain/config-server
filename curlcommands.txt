@@ -1,5 +1,9 @@
 curl localhost:3000/projects
 curl -X PUT localhost:3000/projects -d "name=Bob"
 curl -X DELETE localhost:3000/projects -d "name=Bob"
-curl -X PUT localhost:3000/branches -H "Content-Type: application/json" -d '{"name": "BobsBranch", "projectId": "ff6dd669-e6b7-43dd-b583-3f57a3feec14"}'
-curl -X DELETE localhost:3000/branches -d "name=BobsBranch&projectId=ff6dd669-e6b7-43dd-b583-3f57a3feec14"
+curl -X PUT localhost:3000/branches -H "Content-Type: application/json" -d '{"name": "BobsBranch", "projectId": "8883510c-89ae-435f-ad93-020c1669a19a"}'
+curl -X DELETE localhost:3000/branches -d "name=BobsBranch&projectId=8883510c-89ae-435f-ad93-020c1669a19a"
+curl -X POST localhost:3000/users -H "Content-Type: application/json" -d '{"email": "rockin@pete.com", "password": "password"}'
+curl -X POST localhost:3000/auth  -H "Content-Type: application/json" -d '{"email": "rockin@pete.com", "password": "password"}'
+curl -X DELETE localhost:3000/users -d "id=c648f8b5-3f9c-47b7-b5c1-130d09577aa0"
+curl -X GET localhost:3000/protected -H "Authorization: Bearer "

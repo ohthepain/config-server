@@ -31,7 +31,7 @@ router.delete('/', async function(req, res, next) {
 
   try {
     const prisma = req.prisma
-    project = await prisma.project.delete({
+    await prisma.project.delete({
       where: {
         name: name,
       },

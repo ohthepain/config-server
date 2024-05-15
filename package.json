@@ -7,10 +7,11 @@
     "generate": "npx prisma generate",
     "migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
     "push": "npx prisma push",
-    "test": "jest"
+    "test": "jest",
+    "viewdb": "npx prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^5.13.0",
+    "@prisma/client": "^5.14.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -23,11 +24,14 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "prisma": "^5.13.0",
+    "prisma": "^5.14.0",
     "supertest": "^7.0.0"
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/__tests__/**/*.js?(x)", "**/?(*.)+(spec|test).js?(x)"]
+    "testMatch": [
+      "**/__tests__/**/*.js?(x)",
+      "**/?(*.)+(spec|test).js?(x)"
+    ]
   }
 }

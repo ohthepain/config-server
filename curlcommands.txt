@@ -1,21 +1,30 @@
+Project:
+curl -X PUT localhost:3000/api/projects -H "Content-Type: application/json" -d '{"name": "Power Yoga Center", "bucket": "yoga.config", "gitRepo": "git@github.com:ohthepain/power-yoga-center.git"}' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
+curl -X DELETE localhost:3000/api/projects -H "Content-Type: application/json" -d '{ "name": "Power Yoga Center" }' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
+curl -X GET localhost:3000/api/projects -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
+
+Branch:
+curl -X PUT localhost:3000/api/branches -H "Content-Type: application/json" -d '{"name": "main", "gitBranch": "main", "projectName": "Power Yoga Center"}'
+curl -X DELETE localhost:3000/api/branches -H "Content-Type: application/json" -d '{"name": "New Branch", "projectId": "168a22d3-1966-49ce-bbc4-638a9b4fe4f4"}'  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMzg4OCwiZXhwIjoxNzE1ODkwMjg4fQ.hHQGFa24ssisekA9Vp3GszdB6Lg5dkPtLGjhwB9Dh9A"
+
 Create users:
-curl -X POST localhost:3000/users -H "Content-Type: application/json" -d '{"email": "user@pete.com", "password": "password", "roles": ["user"]}'
-curl -X POST localhost:3000/users -H "Content-Type: application/json" -d '{"email": "moderator@pete.com", "password": "password", "roles": ["moderator", "user"]}'
-curl -X POST localhost:3000/users -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password", "roles": ["admin", "moderator", "user"]}'
-curl -X POST localhost:3000/users -H "Content-Type: application/json" -d '{"email": "superadmin@pete.com", "password": "password", "roles": ["admin", "moderator", "user", "superadmin"]}'
+curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "user@pete.com", "password": "password", "roles": ["user"]}'
+curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "moderator@pete.com", "password": "password", "roles": ["moderator", "user"]}'
+curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password", "roles": ["admin", "moderator", "user"]}'
+curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "superadmin@pete.com", "password": "password", "roles": ["admin", "moderator", "user", "superadmin"]}'
 
 Auth:
-curl -X POST localhost:3000/auth  -H "Content-Type: application/json" -d '{"email": "moderator@pete.com", "password": "password"}'
+curl -X POST localhost:3000/api/auth  -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password"}'
 
-curl -X GET "http://localhost:3000/auth/api/test/user" -H "x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTMxNCwiZXhwIjoxNzE1ODMxNzE0fQ.aWubWof2sPRt3Sypc1SDNihqHSeEsstuj4vFQpVXMdY"
-curl -X GET "http://localhost:3000/auth/api/test/mod" -H "x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTQ3MCwiZXhwIjoxNzE1ODMxODcwfQ.3XCXd6u0_LqaxXgJbbhr0-mmwXCwvo8H0qypfYggsLI"
-curl -X GET "http://localhost:3000/auth/api/test/admin" -H "x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTMxNCwiZXhwIjoxNzE1ODMxNzE0fQ.aWubWof2sPRt3Sypc1SDNihqHSeEsstuj4vFQpVXMdY"
-curl -X GET "http://localhost:3000/auth/api/test/superadmin" -H "x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTMxNCwiZXhwIjoxNzE1ODMxNzE0fQ.aWubWof2sPRt3Sypc1SDNihqHSeEsstuj4vFQpVXMdY"
+curl -X GET "http://localhost:3000/api/auth/test/user" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTc4Mzg2OSwiZXhwIjoxNzE1ODcwMjY5fQ.bisnSUI9Di26wyO1uDB8X137i7byidxxvwQAm1ZbIqI"
+curl -X GET "http://localhost:3000/api/auth/test/mod" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTQ3MCwiZXhwIjoxNzE1ODMxODcwfQ.3XCXd6u0_LqaxXgJbbhr0-mmwXCwvo8H0qypfYggsLI"
+curl -X GET "http://localhost:3000/api/auth/test/admin" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTMxNCwiZXhwIjoxNzE1ODMxNzE0fQ.aWubWof2sPRt3Sypc1SDNihqHSeEsstuj4vFQpVXMdY"
+curl -X GET "http://localhost:3000/api/auth/test/superadmin" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTMxNCwiZXhwIjoxNzE1ODMxNzE0fQ.aWubWof2sPRt3Sypc1SDNihqHSeEsstuj4vFQpVXMdY"
 
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImIwNjY0MzViLTQ0Y2ItNGNiNy05NDgyLWVkOWY1YjEwM2VmNCIsImlhdCI6MTcxNTc0NTI0MCwiZXhwIjoxNzE1ODMxNjQwfQ.BaS0DGZzCO7JGzoWlDEFsHAFau5Hc7hdx7asI2Qz7z0
 
 Delete users:
-curl -X DELETE localhost:3000/users -d "id=979e352b-14fa-4d3c-b2c9-5865e927047d"
+curl -X DELETE localhost:3000/api/users/test@example.com -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTc4NDA1NSwiZXhwIjoxNzE1ODcwNDU1fQ.ww5BmuEc8miPnTUB3o3esCMXqGK_lYxxV5AWhYZn9Pk"
 
 Create Roles:
 curl -X PUT localhost:3000/roles -d "name=user"
@@ -29,5 +38,5 @@ curl -X PUT localhost:3000/projects -d "name=Bob"
 curl -X DELETE localhost:3000/projects -d "name=Bob"
 curl -X PUT localhost:3000/branches -H "Content-Type: application/json" -d '{"name": "BobsBranch", "projectId": "8883510c-89ae-435f-ad93-020c1669a19a"}'
 curl -X DELETE localhost:3000/branches -d "name=BobsBranch&projectId=8883510c-89ae-435f-ad93-020c1669a19a"
-//curl -X GET localhost:3000/protected -H "Authorization: Bearer " -H "x-access-token: "
-curl -X GET localhost:3000/protected -H "x-access-token: "
+//curl -X GET localhost:3000/protected -H "Authorization: Bearer " -H "Authorization: Bearer "
+curl -X GET localhost:3000/protected -H "Authorization: Bearer "

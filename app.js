@@ -36,13 +36,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/configs', configsRouter)
-app.use('/branches', branchesRouter)
-app.use('/environments', environmentsRouter)
-app.use('/projects', projectsRouter)
-app.use('/roles', rolesRouter)
-app.use('/auth', authRouter)
+app.use('/api/users', usersRouter);
+app.use('/api/configs', configsRouter)
+app.use('/api/branches', branchesRouter)
+app.use('/api/environments', environmentsRouter)
+app.use('/api/projects', projectsRouter)
+app.use('/api/roles', rolesRouter)
+app.use('/api/auth', authRouter)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

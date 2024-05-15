@@ -13,14 +13,15 @@ function verifyAccessToken(token) {
 
 // Function to verify the token from the request header
 function verifyToken(req, res, next) {
-  let token = req.headers["x-access-token"];  
-  const secret = process.env.ACCESS_TOKEN_SECRET;
-  if (!token) {
+  let token = req.headers["authorization"];  
+  if (!token || token.split(' ').length < 2) {
     return res.status(403).send({
       message: "No token provided!"
     });
   }
+  token = token.split(' ')[1];
   
+  const secret = process.env.ACCESS_TOKEN_SECRET;
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({
@@ -32,6 +33,14 @@ function verifyToken(req, res, next) {
     req.userId = decoded.id;
     next();
   });
+};
+
+function isUser(req, res, next) {
+  if (req.userId != null) {
+    next();  // Proceed to the next middleware or route handler
+  } else {
+    res.status(403).send({message: "User not authenticated"});  // Send an error response
+  }
 };
 
 async function isAdmin(req, res, next) {
@@ -120,4 +129,4 @@ isSuperAdmin = async (req, res, next) => {
   });
 };
 
-module.exports = { verifyToken, isAdmin, isModerator, isModeratorOrAdmin, isSuperAdmin }
+module.exports = { verifyToken, isUser, isAdmin, isModerator, isModeratorOrAdmin, isSuperAdmin }

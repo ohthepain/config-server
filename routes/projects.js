@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
-router.put('/', async function(req, res, next) {
-  const { name } = req.body
+const { verifyToken, isAdmin, isUser } = require('../middleware/authJwt')
+
+router.put('/', [verifyToken, isAdmin], async function(req, res, next) {
+  const { name, gitRepo, bucket } = req.body
   if (!name) {
     return res.status(400).send('Project name is required');
   }
@@ -12,18 +14,18 @@ router.put('/', async function(req, res, next) {
     project = await prisma.project.create({
       data: {
         name: name,
-        gitRepo: res.gitRepo || null,
-        bucket: res.bucket || null,
+        gitRepo: gitRepo,
+        bucket: bucket,
       },
     })
   } catch (error) {
     console.log(error)
     next(error)
   }
-  res.send(project);
+  res.status(201).send(project);
 });
 
-router.delete('/', async function(req, res, next) {
+router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
   const { name } = req.body
   if (!name) {
     return res.status(400).send('Project name is required');
@@ -40,10 +42,10 @@ router.delete('/', async function(req, res, next) {
     console.log(error)
     next(error)
   }
-  res.send([]);
+  res.status(204).send([]);
 });
 
-router.get('/', async function(req, res, next) {
+router.get('/', [verifyToken, isUser], async function(req, res, next) {
   // res.render('index', { title: 'Projects' });
   const allProjects = await req.prisma.project.findMany()
   console.log(allProjects);

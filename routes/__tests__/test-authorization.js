@@ -16,7 +16,7 @@ describe('Authentication and Authorization Tests', () => {
       beforeAll(async () => {
         // Authenticate and store the token
         const response = await request(app)
-          .post('/auth')
+          .post('/api/auth')
           .send({
             email: user.email,
             password: 'password' // Assuming the password is 'password' for all
@@ -27,8 +27,8 @@ describe('Authentication and Authorization Tests', () => {
 
       test('Access user endpoint', async () => {
         const res = await request(app)
-          .get('/auth/api/test/user')
-          .set('x-access-token', token);
+          .get('/api/auth/test/user')
+          .set('Authorization', 'Bearer ' + token)
 
         expect(res.statusCode).toEqual(200);
         expect(res.text).toContain('Public Content.');
@@ -36,8 +36,8 @@ describe('Authentication and Authorization Tests', () => {
 
       test('Access moderator endpoint', async () => {
         const res = await request(app)
-          .get('/auth/api/test/mod')
-          .set('x-access-token', token);
+          .get('/api/auth/test/mod')
+          .set('Authorization', 'Bearer ' + token)
 
         // Expect different status based on user role
         const expectedStatus = user.role === 'moderator' || user.role === 'admin' || user.role === 'superadmin' ? 200 : 403;
@@ -49,8 +49,8 @@ describe('Authentication and Authorization Tests', () => {
 
       test('Access admin endpoint', async () => {
         const res = await request(app)
-          .get('/auth/api/test/admin')
-          .set('x-access-token', token);
+          .get('/api/auth/test/admin')
+          .set('Authorization', 'Bearer ' + token)
 
         const expectedStatus = user.role === 'admin' || user.role === 'superadmin' ? 200 : 403;
         expect(res.statusCode).toEqual(expectedStatus);
@@ -61,8 +61,8 @@ describe('Authentication and Authorization Tests', () => {
 
       test('Access superadmin endpoint', async () => {
         const res = await request(app)
-          .get('/auth/api/test/superadmin')
-          .set('x-access-token', token);
+          .get('/api/auth/test/superadmin')
+          .set('Authorization', 'Bearer ' + token)
 
         const expectedStatus = user.role === 'superadmin' ? 200 : 403;
         expect(res.statusCode).toEqual(expectedStatus);

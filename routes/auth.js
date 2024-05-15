@@ -1,21 +1,21 @@
 var express = require('express');
 var router = express.Router();
 const { signIn } = require('../controllers/auth')
-const { verifyToken, isModerator, isAdmin } = require('../middleware/authJwt')
+const { verifyToken, isModerator, isAdmin, isUser, isModeratorOrAdmin } = require('../middleware/authJwt')
 
-router.get("/api/test/user", [verifyToken], async function(req, res, next) {
+router.get("/test/user", [verifyToken], async function(req, res, next) {
   res.status(200).send("Public Content.");
 });
 
-router.get("/api/test/mod", [verifyToken, isModerator], async function(req, res, next) {
+router.get("/test/mod", [verifyToken, isModerator], async function(req, res, next) {
   res.status(200).send("Moderator Content.");
 });
 
-router.get("/api/test/admin", [verifyToken, isAdmin], async function(req, res, next) {
+router.get("/test/admin", [verifyToken, isAdmin], async function(req, res, next) {
   res.status(200).send("Admin Content.");
 });
 
-router.get("/api/test/superadmin", [verifyToken, isSuperAdmin], async function(req, res, next) {
+router.get("/test/superadmin", [verifyToken, isSuperAdmin], async function(req, res, next) {
   res.status(200).send("Superadmin Content.");
 });
 
@@ -54,7 +54,8 @@ router.delete('/:id', [verifyToken, isAdmin], async function(req, res, next) {
   res.send([]);
 });
 
-router.get('/', async function(req, res, next) {
+// Get all users
+router.get('/', [verifyToken, isUser], async function(req, res, next) {
   try {
     prisma = res.prisma
     const all = await req.prisma.branch.findMany()
@@ -65,19 +66,6 @@ router.get('/', async function(req, res, next) {
     next(error)
   }
 });
-
-router.get('/:name', async function(req, res, next) {
-  const { name } = req.params;
-
-  try {
-    prisma = res.prisma
-    const role = await prisma.role.findUnique({ where: { name: name } });
-    res.send(role)
-  } catch (error) {
-    console.log(error)
-    next(error)
-  }
-})
 
 module.exports = router;
 

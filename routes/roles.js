@@ -15,30 +15,30 @@ router.put('/', async function(req, res, next) {
       return res.status(404).send('Role already exists');
     }
     
-    role = await prisma.role.create({
+    const role = await prisma.role.create({
       data: {
         name: name,
       },
     })
+
+    res.send(role)
   } catch (error) {
     console.log(error)
     next(error)
   }
-
-  res.send(project);
 });
 
-router.delete('/:id', async function(req, res, next) {
+router.delete('/:name', async function(req, res, next) {
   const { name } = req.params;
-  if (!id) {
-    return res.status(400).send('Role id is required');
+  if (!name) {
+    return res.status(400).send('Role name is required');
   }
 
   try {
     const prisma = req.prisma
     project = await prisma.role.delete({
       where: {
-        id: id,
+        name: name,
       },
     })
   } catch (error) {

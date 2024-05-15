@@ -24,7 +24,8 @@ checkRolesExist = async (req, res, next) => {
         prisma = req.prisma
         if (roles) {
             for (let i = 0; i < roles.length; i++) {
-                if (!await prisma.roles.findUnique(role)) {
+                const query = { where: { name: roles[i] } };
+                if (!await prisma.role.findUnique(query)) {
                     res.status(400).send({
                         message: "Failed! Role does not exist = " + req.body.roles[i]
                     });

@@ -5,16 +5,16 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var configsRouter = require('./routes/configs');
 var branchesRouter = require('./routes/branches');
 var environmentsRouter = require('./routes/environments');
-var projectsRouter = require('./routes/projects');
 var rolesRouter = require('./routes/roles');
 var authRouter = require('./routes/auth');
+var usersRouter = require('./routes/users');
+var projectsRouter = require('./routes/projects');
 
 const { PrismaClient } = require('@prisma/client')
-const { authenticateToken } = require('./controllers/auth')
+const { verifyToken } = require('./middleware/authJwt')
 
 var app = express();
 
@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.get('/protected', authenticateToken, (req, res) => {
+app.get('/protected', verifyToken, (req, res) => {
   res.json({ message: 'Welcome to the protected route!', user: req.user });
 });
 

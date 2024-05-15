@@ -1,6 +1,23 @@
 var express = require('express');
 var router = express.Router();
 const { signIn } = require('../controllers/auth')
+const { verifyToken, isModerator, isAdmin } = require('../middleware/authJwt')
+
+router.get("/api/test/user", [verifyToken], async function(req, res, next) {
+  res.status(200).send("Public Content.");
+});
+
+router.get("/api/test/mod", [verifyToken, isModerator], async function(req, res, next) {
+  res.status(200).send("Moderator Content.");
+});
+
+router.get("/api/test/admin", [verifyToken, isAdmin], async function(req, res, next) {
+  res.status(200).send("Admin Content.");
+});
+
+router.get("/api/test/superadmin", [verifyToken, isSuperAdmin], async function(req, res, next) {
+  res.status(200).send("Superadmin Content.");
+});
 
 router.post('/', async function(req, res, next) {
   const { email, password } = req.body
@@ -16,7 +33,7 @@ router.post('/', async function(req, res, next) {
   }
 });
 
-router.delete('/:id', async function(req, res, next) {
+router.delete('/:id', [verifyToken, isAdmin], async function(req, res, next) {
   const { name } = req.params;
   if (!id) {
     return res.status(400).send('Role id is required');

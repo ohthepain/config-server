@@ -14,24 +14,34 @@ router.post('/', [checkDuplicateEmail, checkRolesExist], async function(req, res
     return res.status(400).send('Email and password are required');
   }
 
-  if (roles) {
-    console.log("We got roles: <%s>", roles)
-  }
-
   try {
     const prisma = req.prisma
-    let user = await prisma.user.create({
-      data: {
-        email: email,
-        password: bcrypt.hashSync(password, 8)
-      },
+    const result = await prisma.$transaction(async (prisma) => {
+      let user = await prisma.user.create({
+        data: {
+          email: email,
+          password: bcrypt.hashSync(password, 8)
+        },
+      })
+
+      // Associate roles
+      await Promise.all(roles.map(roleName => {
+        return prisma.userRole.create({
+          data: {
+            userId: user.id,
+            roleId: roleName  // Assuming roleName is the ID in the Role model
+          }
+        });
+      }));
+      
+      return user
     })
+
+    res.send({ message: "User created successfully", userId: result.id });
   } catch (error) {
     console.log(error)
     next(error)
   }
-
-  res.send("SUCCESS");
 });
 
 router.get('/', async function(req, res, next) {
@@ -68,7 +78,6 @@ router.get('/', async function(req, res, next) {
 
   res.send(project);
 });
-
 
 router.delete('/', async function(req, res, next) {
   const { id } = req.body

@@ -19,6 +19,7 @@ function verifyToken(req, res, next) {
     }
     
     req.userId = decoded.id;
+    req.decodedToken = decoded;
     next();
   });
 };
@@ -32,89 +33,43 @@ function isUser(req, res, next) {
 };
 
 async function isAdmin(req, res, next) {
-  const prisma = req.prisma
-  const user = await prisma.user.findUnique({
-    where: { id: req.userId },
-    include: {
-      roles: true
-    }
-  });
-
-  for (const role of user.roles) {
-    if (role.roleId === "admin") {
-      next(); // Proceed to the next middleware if user is a moderator
-      return;
-    }
+  if (req.decodedToken.roles.includes('ROLE_ADMIN')) {
+    next();
+  } else {
+    res.status(403).send({
+      message: "Require Admin Role!"
+    });
   }
-  
-  res.status(403).send({
-    message: "Require Moderator Role!"
-  });
 };
 
 isModerator = async (req, res, next) => {
-  const prisma = req.prisma
-  const user = await prisma.user.findUnique({
-    where: { id: req.userId },
-    include: {
-      roles: true
-    }
-  });
-
-  for (const role of user.roles) {
-    if (role.roleId === "moderator") {
-      next(); // Proceed to the next middleware if user is a moderator
-      return;
-    }
+  if (req.decodedToken.roles.includes('ROLE_MODERATOR')) {
+    next();
+  } else {
+    res.status(403).send({
+      message: "Require Moderator Role!"
+    });
   }
-  
-  res.status(403).send({
-    message: "Require Moderator Role!"
-  });
 };
 
 isModeratorOrAdmin = async (req, res, next) => {
-  const prisma = req.prisma
-  const user = await prisma.user.findUnique({
-    where: { id: req.userId },
-    include: {
-      roles: true
-    }
-  });
-
-
-  for (const role of user.roles) {
-    if (role.roleId === "moderator" || role.roleId === "admin") {
-      next(); // Proceed to the next middleware if user is a moderator
-      return;
-    }
+  if (req.decodedToken.roles.includes('ROLE_ADMIN') || req.decodedToken.roles.includes('ROLE_MODERATOR')) {
+    next();
+  } else {
+    res.status(403).send({
+      message: "Require Admin Role!"
+    });
   }
-  
-  res.status(403).send({
-    message: "Require Moderator Role!"
-  });
 };
 
 isSuperAdmin = async (req, res, next) => {
-  const prisma = req.prisma
-  const user = await prisma.user.findUnique({
-    where: { id: req.userId },
-    include: {
-      roles: true
-    }
-  });
-
-
-  for (const role of user.roles) {
-    if (role.roleId === "superadmin") {
-      next(); // Proceed to the next middleware if user is a moderator
-      return;
-    }
+  if (req.decodedToken.roles.includes('ROLE_SUPERADMIN')) {
+    next();
+  } else {
+    res.status(403).send({
+      message: "Require Moderator Role!"
+    });
   }
-  
-  res.status(403).send({
-    message: "Require Moderator Role!"
-  });
 };
 
 module.exports = { verifyToken, isUser, isAdmin, isModerator, isModeratorOrAdmin, isSuperAdmin }

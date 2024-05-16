@@ -9,6 +9,9 @@ signIn = async (req, res) => {
     const user = await prisma.user.findUnique({
         where: {
             email: email
+        },
+        include: {
+            roles: true
         }
     })
     .then(async user => {
@@ -24,22 +27,23 @@ signIn = async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ id: user.id },
-                                process.env.ACCESS_TOKEN_SECRET,
-                                {
-                                    algorithm: 'HS256',
-                                    allowInsecureKeySizes: true,
-                                    expiresIn: 86400, // 24 hours
-                                });
-
         var authorities = [];
         if (user.roles) {
-            user.roles.then(roles => {
-                for (let i = 0; i < roles.length; i++) {
-                    authorities.push("ROLE_" + roles[i].name.toUpperCase());
-                }
-            });
+            for (let i = 0; i < user.roles.length; i++) {
+                authorities.push("ROLE_" + user.roles[i].roleId.toUpperCase());
+            }
         }
+
+        const token = jwt.sign({ 
+                id: user.id,
+                roles: authorities,
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            {
+                algorithm: 'HS256',
+                allowInsecureKeySizes: true,
+                expiresIn: '1d', // 1 day
+            });
 
         res.status(200).send({
             id: user.id,

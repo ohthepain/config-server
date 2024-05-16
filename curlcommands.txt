@@ -3,6 +3,8 @@ curl -X PUT localhost:3000/api/projects -H "Content-Type: application/json" -d '
 curl -X DELETE localhost:3000/api/projects -H "Content-Type: application/json" -d '{ "name": "Power Yoga Center" }' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
 curl -X GET localhost:3000/api/projects -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
 
+curl -X DELETE localhost:3000/api/projects -H "Content-Type: application/json" -d '{ "name": "Project for test-configs" }' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgzOTEwMiwiZXhwIjoxNzE1OTI1NTAyfQ.KFMCEFTqFc5Hw2qkMGRuUapwOHDiIOP_QHpXkNu9CqE"
+
 Branch:
 curl -X PUT localhost:3000/api/branches -H "Content-Type: application/json" -d '{"name": "main", "gitBranch": "main", "projectName": "Power Yoga Center"}'
 curl -X DELETE localhost:3000/api/branches -H "Content-Type: application/json" -d '{"name": "New Branch", "projectId": "168a22d3-1966-49ce-bbc4-638a9b4fe4f4"}'  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMzg4OCwiZXhwIjoxNzE1ODkwMjg4fQ.hHQGFa24ssisekA9Vp3GszdB6Lg5dkPtLGjhwB9Dh9A"

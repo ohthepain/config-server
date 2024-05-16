@@ -18,11 +18,11 @@ router.put('/', [verifyToken, isAdmin], async function(req, res, next) {
         bucket: bucket,
       },
     })
+    res.status(201).send(project);
   } catch (error) {
     console.log(error)
     next(error)
   }
-  res.status(201).send(project);
 });
 
 router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
@@ -38,11 +38,11 @@ router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
         name: name,
       },
     })
+    res.status(204).send([]);
   } catch (error) {
     console.log(error)
     next(error)
   }
-  res.status(204).send([]);
 });
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {

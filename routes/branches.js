@@ -44,12 +44,11 @@ router.delete('/', [verifyToken, isUser], async function(req, res, next) {
         projectId: projectId
       },
     })
+    res.status(204).send([]);
   } catch (error) {
     console.log(error)
     next(error)
   }
-
-  res.status(204).send([]);
 });
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {

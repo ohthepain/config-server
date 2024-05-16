@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../app'); // Adjust the path to your Express app
+const app = require('../../app');
 
 describe('Branch Routes', () => {
     let adminToken;

@@ -1,17 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-function verifyAccessToken(token) {
-  const secret = process.env.ACCESS_TOKEN_SECRET;
-
-  try {
-      const decoded = jwt.verify(token, secret);
-      return { success: true, data: decoded };
-  } catch (error) {
-      return { success: false, error: error.message };
-  }
-}
-
-// Function to verify the token from the request header
+// NOTE: Stores the user ID in the request object
 function verifyToken(req, res, next) {
   let token = req.headers["authorization"];  
   if (!token || token.split(' ').length < 2) {
@@ -29,7 +18,6 @@ function verifyToken(req, res, next) {
       });
     }
     
-    // Store the user ID in the request object
     req.userId = decoded.id;
     next();
   });

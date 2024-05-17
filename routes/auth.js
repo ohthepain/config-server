@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const { signIn } = require('../controllers/auth')
+const { signIn, createApiToken } = require('../controllers/auth')
 const { verifyToken, isModerator, isAdmin, isUser, isModeratorOrAdmin } = require('../middleware/authJwt')
 
 router.get("/test/user", [verifyToken], async function(req, res, next) {
@@ -32,6 +32,15 @@ router.post('/', async function(req, res, next) {
     next(error)
   }
 });
+
+router.get('/api-token', [verifyToken, isUser], async function(req, res, next) {
+  try {
+    await createApiToken(req, res)
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
 
 router.delete('/:id', [verifyToken, isAdmin], async function(req, res, next) {
   const { name } = req.params;

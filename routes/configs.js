@@ -1,3 +1,4 @@
+"use strict"
 var express = require('express');
 var router = express.Router();
 const { verifyToken, isUser } = require('../middleware/authJwt')
@@ -58,16 +59,29 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
       if (!branch) {
         return res.status(404).send('Branch not found');
       }
-  
+
       const newConfig = await req.prisma.config.create({
           data: {
               status: "CREATED",
               projectId: project.id,
               branchId: branch.id,
               gitHash: gitHash,
-              userId: req.userId,
+              userId: req.userId || "api token",
           }
       });
+
+      if (req.decodedToken && req.decodedToken.exp) {
+        const now = new Date();
+        const issuedAt = new Date(req.decodedToken.iat * 1000);
+        const expiresAt = new Date(req.decodedToken.exp * 1000);
+        const age = now - issuedAt;
+        const oneMonth = 30 * 24 * 60 * 60 * 1000;
+        const timeUntilExpiration = expiresAt - now;
+        if (age > oneMonth && timeUntilExpiration < oneMonth) {
+            newConfig.message = `Your API token expires ${new Date(req.decodedToken.exp * 1000)}! Please generate a new one.`
+        }
+      }
+
       res.status(201).send(newConfig);
     } catch (error) {
         console.error(error);

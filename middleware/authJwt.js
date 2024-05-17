@@ -25,10 +25,10 @@ function verifyToken(req, res, next) {
 };
 
 function isUser(req, res, next) {
-  if (req.userId != null) {
-    next();  // Proceed to the next middleware or route handler
+  if (req.decodedToken.roles.includes('ROLE_USER')) {
+    next();
   } else {
-    res.status(403).send({message: "User not authenticated"});  // Send an error response
+    res.status(403).send({message: "User not authenticated"});
   }
 };
 

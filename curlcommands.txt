@@ -1,3 +1,11 @@
+API Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE1OTE5NjE3LCJleHAiOjE3NDc0NzcyMTd9.UNLcvZxNk3P5oF9bG8d6Oh7qRjEPYnRqTLs_nUvWS48
+
+Auth:
+curl -X POST localhost:3000/api/auth  -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password"}'
+
+Get API Token:
+curl -X GET localhost:3000/api/auth/api-token -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX01PREVSQVRPUiIsIlJPTEVfVVNFUiJdLCJpYXQiOjE3MTU5MTk0OTgsImV4cCI6MTcxNjAwNTg5OH0.JijJZHxbboHlGlkdOXKHelxkC8F9qMguzSlkdP2ZTMQ"
+
 Project:
 curl -X PUT localhost:3000/api/projects -H "Content-Type: application/json" -d '{"name": "Power Yoga Center", "bucket": "yoga.config", "gitRepo": "git@github.com:ohthepain/power-yoga-center.git"}' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
 curl -X DELETE localhost:3000/api/projects -H "Content-Type: application/json" -d '{ "name": "Power Yoga Center" }' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTgwMjM4NywiZXhwIjoxNzE1ODg4Nzg3fQ.8QDeVSHayu0gqaEcpTJJepPRHbt5xnMrxWSd0gZzolo"
@@ -14,9 +22,6 @@ curl -X POST localhost:3000/api/users/register -H "Content-Type: application/jso
 curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "moderator@pete.com", "password": "password", "roles": ["moderator", "user"]}'
 curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password", "roles": ["admin", "moderator", "user"]}'
 curl -X POST localhost:3000/api/users/register -H "Content-Type: application/json" -d '{"email": "superadmin@pete.com", "password": "password", "roles": ["admin", "moderator", "user", "superadmin"]}'
-
-Auth:
-curl -X POST localhost:3000/api/auth  -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password"}'
 
 curl -X GET "http://localhost:3000/api/auth/test/user" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsImlhdCI6MTcxNTc4Mzg2OSwiZXhwIjoxNzE1ODcwMjY5fQ.bisnSUI9Di26wyO1uDB8X137i7byidxxvwQAm1ZbIqI"
 curl -X GET "http://localhost:3000/api/auth/test/mod" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM4MDg0Mjc5LWRjMTctNDAyZS04OTY2LTkxOWQwNWY2NTgxMSIsImlhdCI6MTcxNTc0NTQ3MCwiZXhwIjoxNzE1ODMxODcwfQ.3XCXd6u0_LqaxXgJbbhr0-mmwXCwvo8H0qypfYggsLI"

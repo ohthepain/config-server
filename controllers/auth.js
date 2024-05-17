@@ -57,18 +57,23 @@ signIn = async (req, res) => {
     });
 };
 
-function generateAccessToken(user) {
-    const payload = {
-        id: user.id,
-        email: user.email
-    };
+createApiToken = async (req, res) => {
+    const token = jwt.sign({
+            // Need a userid due to the config-user db relation
+            id: req.userId,
+            roles: ["ROLE_USER"],
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            algorithm: 'HS256',
+            allowInsecureKeySizes: true,
+            expiresIn: '1y',
+        });
 
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    const options = { expiresIn: '1h' };
-
-    return jwt.sign(payload, secret, options);
-}
-
+    res.status(200).send({
+        accessToken: token
+    });
+};
 
 // // Generate a new refresh token
 // function generateRefreshToken(user) {
@@ -114,4 +119,4 @@ function generateAccessToken(user) {
 //     res.json({ accessToken: newAccessToken });
 // });
 
-module.exports = { signIn, generateAccessToken }
+module.exports = { signIn, createApiToken }

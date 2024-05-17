@@ -1,3 +1,4 @@
+"use strict";
 var express = require('express');
 var router = express.Router();
 
@@ -11,7 +12,7 @@ router.put('/', [verifyToken, isAdmin], async function(req, res, next) {
 
   try {
     const prisma = req.prisma
-    project = await prisma.project.create({
+    const project = await prisma.project.create({
       data: {
         name: name,
         gitRepo: gitRepo,
@@ -26,7 +27,7 @@ router.put('/', [verifyToken, isAdmin], async function(req, res, next) {
 });
 
 router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
-  const { name } = req.body
+  const { name, ignoreErrors } = req.body
   if (!name) {
     return res.status(400).send('Project name is required');
   }
@@ -40,15 +41,18 @@ router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
     })
     res.status(204).send([]);
   } catch (error) {
-    console.log(error)
-    next(error)
+    if (ignoreErrors) {
+      res.status(204).send([]);
+    } else {
+      console.log(error)
+      next(error)
+    }
   }
 });
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {
   // res.render('index', { title: 'Projects' });
   const allProjects = await req.prisma.project.findMany()
-  console.log(allProjects);
   res.send(allProjects);
 });
 

@@ -1,3 +1,4 @@
+"use strict";
 var express = require('express');
 var router = express.Router();
 const { verifyToken, isUser } = require('../middleware/authJwt')
@@ -38,7 +39,7 @@ router.delete('/', [verifyToken, isUser], async function(req, res, next) {
 
   try {
     const prisma = req.prisma
-    project = await prisma.branch.delete({
+    await prisma.branch.delete({
       where: {
         name: name,
         projectId: projectId

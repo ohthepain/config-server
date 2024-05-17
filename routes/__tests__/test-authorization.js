@@ -1,3 +1,4 @@
+"use strict";
 const request = require('supertest');
 const app = require('../../app'); // Adjust the path according to your project structure
 

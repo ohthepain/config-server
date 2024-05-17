@@ -32,7 +32,6 @@ describe('Admin User Tests', () => {
 
         expect(response.statusCode).toBe(201);
         expect(response.body).toHaveProperty('id');
-        token = response.body.token; // Save the auth token for authenticated requests
     });
 
     // Test retrieving the registered user

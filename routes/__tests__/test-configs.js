@@ -1,3 +1,4 @@
+"use strict";
 const request = require('supertest');
 const app = require('../../app');
 
@@ -19,11 +20,11 @@ describe('Config and Branch Cascading Tests', () => {
         await request(app)
         .delete('/api/projects')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
+        .send({ ignoreErrors: true, name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
 
         // Create project
         try {
-            projectRes = await request(app)
+            const projectRes = await request(app)
                 .put('/api/projects')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });

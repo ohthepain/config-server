@@ -1,9 +1,10 @@
+"use strict";
 const request = require('supertest');
 const app = require('../../app');
 
 describe('Config and Branch Cascading Tests', () => {
     let adminToken;
-    let projectId;
+    let apiToken;
     const projectName = 'Project for test-configs'
     let adminUserId;
 
@@ -18,17 +19,17 @@ describe('Config and Branch Cascading Tests', () => {
         // Delete project if it's left over from a previously failed test
         // Can't do this with api tokens
         await request(app)
-        .delete('/api/projects')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
+            .delete('/api/projects')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ ignoreErrors: true, 
+                name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
 
         // Create project using admin token
         try {
-            projectRes = await request(app)
+            const projectRes = await request(app)
                 .put('/api/projects')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
-            projectId = projectRes.body.id;
         } catch (error) {
             console.error(error)
             return

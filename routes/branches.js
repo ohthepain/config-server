@@ -1,7 +1,7 @@
 "use strict";
 var express = require('express');
 var router = express.Router();
-const { verifyToken, isUser } = require('../middleware/authJwt')
+const { verifyToken, isUser, isAdmin } = require('../middleware/authJwt')
 
 router.put('/', [verifyToken, isUser], async function(req, res, next) {
   const { name, projectName, gitBranch } = req.body
@@ -31,7 +31,7 @@ router.put('/', [verifyToken, isUser], async function(req, res, next) {
   }
 });
 
-router.delete('/', [verifyToken, isUser], async function(req, res, next) {
+router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
   const { name, projectId } = req.body
   if (!name || !projectId) {
     return res.status(400).send('Branch name and projectId are required');
@@ -53,10 +53,30 @@ router.delete('/', [verifyToken, isUser], async function(req, res, next) {
 });
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {
-  prisma = res.prisma
-  const all = await req.prisma.branch.findMany()
-  console.log(all);
-  res.send(all);
+  const { id, name, projectId } = req.query;
+  const prisma = req.prisma
+  if (id) {
+    if (name || projectId) {
+      return res.status(400).send("branch id cannot combine with and branch name or projectId");  
+    }
+    const branch = await prisma.branch.findUnique({ where: { id: id }})
+    return res.send(branch)
+  }
+  else if (name) {
+    if (!projectId) {
+      return res.status(400).send("Branch name requires projectId (think dev, main,ect)");  
+    } else {
+      const branch = await prisma.branch.findUnique({ where: { name: name, projectId: projectId }})
+      if (branch) {
+        return res.send(branch)
+      } else {
+        return res.status(404).send(`Could not find branch with name $<name> for projectId ${projectId}`)
+      }
+    }
+  } else {
+    const all = await req.prisma.branch.findMany()
+    return res.send(all);
+  }
 });
 
 module.exports = router;

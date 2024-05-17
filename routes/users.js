@@ -41,25 +41,6 @@ router.post('/register', [checkDuplicateEmail, checkRolesExist], async function(
   }
 });
 
-router.get('/:email', [verifyToken, isUser], async function(req, res, next) {
-  const { email } = req.params
-  if (!email) {
-    return res.status(404).send('Email required');
-  }
-
-  try {
-    const prisma = req.prisma
-    const user = await prisma.user.findUnique({ where: { email: email } });
-    if (!user) {
-      return res.status(404).send('Email not found');
-    }
-    res.send(user);
-  } catch (error) {
-    console.log(error)
-    next(error)
-  }
-});
-
 router.get('/', [verifyToken, isUser], async function(req, res, next) {
   const { email, id } = req.body
   if (email && id) {
@@ -71,28 +52,26 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
 
     if (!email && !id) {
       const all = await req.prisma.branch.findMany()
-      res.send(all)
+      return res.send(all)
     }
     else if (id) {
       const user = await prisma.user.findUnique({ where: { id: id } });
-      if (!exists) {
+      if (!user) {
         return res.status(404).send('id not found');
       }
-      res.send(user)
+      return res.send(user)
     }
     else if (email) {
       const user = await prisma.user.findUnique({ where: { email: email } });
-      if (!exists) {
+      if (!user) {
         return res.status(404).send('Email not found');
       }
-      res.send(user)
+      return res.send(user)
     }
   } catch (error) {
     console.log(error)
-    next(error)
+    return next(error)
   }
-
-  res.send(project);
 });
 
 router.delete('/:email', [verifyToken, isModeratorOrAdmin], async function(req, res, next) {

@@ -1,44 +1,51 @@
 "use strict";
 var express = require('express');
 var router = express.Router();
-const { verifyToken, isUser } = require('../middleware/authJwt')
+const { verifyToken, isUser } = require('../middleware/authJwt');
+const { Prisma } = require('@prisma/client');
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {
-  try {
-    const prisma = req.prisma
-    const configs = await prisma.config.findMany({})
-    res.status(200).send(configs);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Failed to retrieve configurations');
-  }
+    const { id, branchId, projectId } = req.query;
+    try {
+        const prisma = req.prisma;
+        if (id) {
+            if (branchId || projectId) {
+                return res.status(400).send("If you specify id you cannot specify branchId or projectId")
+            }
+            const config = await prisma.config.findUnique({
+                where: { id: parseInt(id) }
+            });
+            if (config) {
+                return res.status(200).send(config);
+            } else {
+                return res.status(404).send('Config not found');
+            }
+        } else if (branchId) {
+            const configs = await prisma.config.findMany({
+                where: { branchId: branchId }
+            });
+            if (configs && configs.length > 0) {
+                return res.status(200).send(configs);
+            } else {
+                return res.status(404).send(`No configs found for branchId <${branchId}>`);
+            }
+        } else if (projectId) {
+            const configs = await prisma.config.findMany({
+                where: { projectId: projectId }
+            });
+            if (configs && configs.length > 0) {
+                return res.status(200).send(configs);
+            } else {
+                return res.status(404).send(`No configs found for projectId <${projectId}>`);
+            }
+        } else {
+            return res.status(200).send(await prisma.config.findMany());
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to find config');
+    }
 })
-
-router.get('/:branchName', [verifyToken, isUser], async function(req, res, next) {
-  const branchName = req.query.branchName;
-  if (!branchName) {
-      return res.status(400).send('Branch name is required');
-  }
-
-  try {
-      const prisma = req.prisma;
-      const branch = await prisma.branch.findUnique({
-          where: { name: branchName },
-          include: {
-              configs: true
-          }
-      });
-
-      if (!branch) {
-          return res.status(404).send('Branch not found');
-      }
-
-      res.status(200).send(branch.configs);
-  } catch (error) {
-      console.error(error);
-      res.status(500).send('Failed to retrieve configurations');
-  }
-});
 
 // New config
 router.post('/', [verifyToken, isUser], async function(req, res, next) {
@@ -91,10 +98,10 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
 
 // Update status
 router.put('/update-status', [verifyToken, isUser], async function(req, res, next) {
-  const { configId, status } = req.body;
+  const { id, status } = req.body;
 
-  if (!status || !configId) {
-      return res.status(400).send('Status and configId are required');
+  if (!status || !id) {
+      return res.status(400).send('Status and config id are required');
   }
 
   if (status != "WAITING" && status != "BUILDING") {
@@ -104,7 +111,7 @@ router.put('/update-status', [verifyToken, isUser], async function(req, res, nex
   try {
       const prisma = req.prisma;
       const updatedConfig = await prisma.config.update({
-          where: { id: configId },
+          where: { id: id },
           data: { status: status }
       });
       res.status(200).send(updatedConfig);
@@ -115,7 +122,7 @@ router.put('/update-status', [verifyToken, isUser], async function(req, res, nex
 });
 
 // Update downloadUrl, checksumMd5, set status to DONE
-router.post('/complete', [verifyToken, isUser], async function(req, res) {
+router.put('/complete', [verifyToken, isUser], async function(req, res) {
   const { id, downloadUrl, checksumMd5 } = req.body;
 
   if (!id || !downloadUrl || !checksumMd5) {
@@ -149,13 +156,18 @@ router.delete('/:id', [verifyToken, isUser], async function(req, res, next) {
       const prisma = req.prisma;
       await prisma.config.delete({
           where: {
-              id: id,
+              id: parseInt(id),
           },
       });
       res.status(204).send();
   } catch (error) {
-      console.error(error);
-      res.status(500).send('Failed to delete configuration');
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        // P2025 is the code for "Record to delete does not exist."
+      res.status(404).send('Config not found');
+    } else {
+        console.error(error);
+        res.status(500).send('Failed to delete configuration');
+    }
   }
 });
 

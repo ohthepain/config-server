@@ -32,12 +32,32 @@ describe('Project Routes', () => {
         expect(response.body).toHaveProperty('id');
     });
 
+    test('Create a new project - bad request', async () => {
+        const projectData = {
+            gitRepo: 'http://github.com/example/repo.git',
+            bucket: 'example-bucket'
+        };
+
+        const response = await request(app)
+            .put('/api/projects')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send(projectData);
+
+        expect(response.statusCode).toBe(400);
+    });
+
+    test('Delete a project - bad request', async () => {
+        const response = await request(app)
+            .delete('/api/projects')
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(400);
+    });
+
     test('Delete a project', async () => {
         const response = await request(app)
             .delete('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ name: 'New Project' });
-
         expect(response.statusCode).toBe(204);
     });
 

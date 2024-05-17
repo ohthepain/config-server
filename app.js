@@ -9,7 +9,6 @@ var indexRouter = require('./routes/index');
 var configsRouter = require('./routes/configs');
 var branchesRouter = require('./routes/branches');
 var environmentsRouter = require('./routes/environments');
-var rolesRouter = require('./routes/roles');
 var authRouter = require('./routes/auth');
 var usersRouter = require('./routes/users');
 var projectsRouter = require('./routes/projects');
@@ -42,16 +41,7 @@ app.use('/api/configs', configsRouter)
 app.use('/api/branches', branchesRouter)
 app.use('/api/environments', environmentsRouter)
 app.use('/api/projects', projectsRouter)
-app.use('/api/roles', rolesRouter)
 app.use('/api/auth', authRouter)
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-app.get('/protected', verifyToken, (req, res) => {
-  res.json({ message: 'Welcome to the protected route!', user: req.user });
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

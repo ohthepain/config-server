@@ -5,6 +5,7 @@ const app = require('../../app');
 describe('Branch Routes', () => {
     let adminToken;
     let projectId;
+    const branchName = "TestBranchfortestconfigs"
 
     beforeAll(async () => {
         // Authenticate and obtain token
@@ -21,7 +22,7 @@ describe('Branch Routes', () => {
             .put('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                name: 'Test Project for Branches',
+                name: 'TestProjectForBranches',
                 gitRepo: 'http://github.com/example/repo.git',
                 bucket: 'example-bucket'
             });
@@ -31,7 +32,7 @@ describe('Branch Routes', () => {
     test('Create a new branch for cascade deletion', async () => {
         const branchData = {
             name: 'Cascade Branch',
-            projectName: 'Test Project for Branches',
+            projectName: 'TestProjectForBranches',
             gitBranch: 'main'
         };
 
@@ -46,26 +47,50 @@ describe('Branch Routes', () => {
 
     test('Create a new branch for api deletion', async () => {
         const branchData = {
-            name: 'New Branch',
-            projectName: 'Test Project for Branches',
+            name: branchName,
+            projectName: 'TestProjectForBranches',
             gitBranch: 'main'
         };
 
-        const response = await request(app)
+        var response = await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
             .send(branchData);
 
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveProperty('id');
+
+        // Get branch by name
+        response = await request(app)
+            .get(`/api/branches?name=${branchName}&projectId=${projectId}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(200);
+        const branch = response.body
+
+        // Get branch by id
+        response = await request(app)
+            .get(`/api/branches?id=${branch.id}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(200);
+
+        // Get branch by id and name = BAD REQUEST
+        response = await request(app)
+            .get(`/api/branches?id=${branch.id}&name=${branchName}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(400);
+
+        // Get all branches
+        response = await request(app)
+            .get(`/api/branches`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(200);
     });
 
     test('Delete a branch', async () => {
         const response = await request(app)
             .delete('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'New Branch', projectId });
-
+            .send({ name: branchName, projectId: projectId });
         expect(response.statusCode).toBe(204);
     });
 
@@ -74,7 +99,7 @@ describe('Branch Routes', () => {
         await request(app)
             .delete('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Test Project for Branches' });
+            .send({ name: 'TestProjectForBranches' });
     });
 });
 

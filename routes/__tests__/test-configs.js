@@ -6,6 +6,8 @@ describe('Config and Branch Cascading Tests', () => {
     let adminToken;
     let projectId;
     const projectName = 'Project for test-configs'
+    const branchName = 'Branch for test-configs'
+    const cascadeBranchName = 'Cascade branch for test-configs'
     let adminUserId;
 
     beforeAll(async () => {
@@ -38,11 +40,11 @@ describe('Config and Branch Cascading Tests', () => {
         await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Branchfortestconfigs', projectName: projectName, gitBranch: 'main' });
+            .send({ name: branchName, projectName: projectName, gitBranch: 'main' });
         await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'Cascade branch for test-config', projectName: projectName, gitBranch: 'main' });
+            .send({ name: cascadeBranchName, projectName: projectName, gitBranch: 'main' });
     });
 
     test('should respond with 400 status code if required fields are missing', async () => {
@@ -70,7 +72,7 @@ describe('Config and Branch Cascading Tests', () => {
         expect(response.statusCode).toBe(404);
     });
 
-    test('should handle non-existent config gracefully', async () => {
+    test('should handle non-existent config gracefully 2', async () => {
         const response = await request(app)
         .delete(`/api/configs/100`)
         .set('Authorization', `Bearer ${adminToken}`);
@@ -100,7 +102,7 @@ describe('Config and Branch Cascading Tests', () => {
         const configRes = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ projectName: projectName, branchName: 'Branchfortestconfigs', gitHash: 'abc123', userId: adminUserId });
+            .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
         expect(configRes.statusCode).toBe(201);
 
         const configId = configRes.body.id;
@@ -111,7 +113,7 @@ describe('Config and Branch Cascading Tests', () => {
 
         // Get branch
         response = await request(app)
-            .get(`/api/branches?name=Branchfortestconfigs&projectId=${projectId}`)
+            .get(`/api/branches?name=${branchName}&projectId=${projectId}`)
             .set('Authorization', `Bearer ${adminToken}`);
         const branch = response.body
 

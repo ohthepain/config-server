@@ -5,7 +5,9 @@ const app = require('../../app');
 describe('Branch Routes', () => {
     let adminToken;
     let projectId;
-    const branchName = "TestBranchfortestconfigs"
+    const branchName = "TestBranchfortestbranches"
+    const cascadeBranchName = 'Cascade Branch'
+    const projectName = "TestProjectForBranches"
 
     beforeAll(async () => {
         // Authenticate and obtain token
@@ -22,7 +24,7 @@ describe('Branch Routes', () => {
             .put('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                name: 'TestProjectForBranches',
+                name: projectName,
                 gitRepo: 'http://github.com/example/repo.git',
                 bucket: 'example-bucket'
             });
@@ -31,8 +33,8 @@ describe('Branch Routes', () => {
 
     test('Create a new branch for cascade deletion', async () => {
         const branchData = {
-            name: 'Cascade Branch',
-            projectName: 'TestProjectForBranches',
+            name: cascadeBranchName,
+            projectName: projectName,
             gitBranch: 'main'
         };
 
@@ -48,7 +50,7 @@ describe('Branch Routes', () => {
     test('Create a new branch for api deletion', async () => {
         const branchData = {
             name: branchName,
-            projectName: 'TestProjectForBranches',
+            projectName: projectName,
             gitBranch: 'main'
         };
 
@@ -79,6 +81,12 @@ describe('Branch Routes', () => {
             .set('Authorization', `Bearer ${adminToken}`);
         expect(response.statusCode).toBe(400);
 
+        response = await request(app)
+            .delete('/api/branches')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({});
+        expect(response.statusCode).toBe(400);
+    
         // Get all branches
         response = await request(app)
             .get(`/api/branches`)
@@ -99,7 +107,7 @@ describe('Branch Routes', () => {
         await request(app)
             .delete('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'TestProjectForBranches' });
+            .send({ name: projectName });
     });
 });
 

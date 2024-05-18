@@ -19,6 +19,31 @@ describe('Project Routes', () => {
             .send({ ignoreErrors: true, name: projectName });
     })
 
+    test('Test authentication', async () => {
+        var response = await request(app)
+            .post('/api/auth')
+            .send({ email: 'admin@pete.com', password: process.env.TEST_ADMIN_PASSWORD });
+        expect(response.statusCode).toBe(200);
+
+        // Bad password
+        var response = await request(app)
+            .post('/api/auth')
+            .send({ email: 'admin@pete.com', password: "wrong password" });
+        expect(response.statusCode).toBe(401);
+
+        // Unknown account
+        var response = await request(app)
+            .post('/api/auth')
+            .send({ email: 'nobodyIknow@idkpeteeither.com', password: "wrong password" });
+        expect(response.statusCode).toBe(401);
+
+        // Bad request
+        response = await request(app)
+            .post('/api/auth')
+            .send({ email: 'admin@pete.com' });
+        expect(response.statusCode).toBe(400);
+    });
+    
     test('Create a new project', async () => {
         const projectData = {
             name: projectName,

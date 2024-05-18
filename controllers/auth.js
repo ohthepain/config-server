@@ -7,15 +7,20 @@ signIn = async (req, res) => {
     const prisma = req.prisma
     const email = req.body.email
     const password = req.body.password
-    const user = await prisma.user.findUnique({
-        where: {
-            email: email
-        },
-        include: {
-            roles: true
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email
+            },
+            include: {
+                roles: true
+            }
+        })
+
+        if (!user) {
+            return res.status(401).send("Unknown account or incorrect password")
         }
-    })
-    .then(async user => {
+
         var passwordIsValid = bcrypt.compareSync(
             password,
             user.password
@@ -52,10 +57,9 @@ signIn = async (req, res) => {
             roles: authorities,
             accessToken: token
         });
-    })
-    .catch(err => {
-        res.status(500).send({ message: err.message });
-    });
+    } catch(error) {
+        return res.status(500).send({ message: error.message });
+    };
 };
 
 createApiToken = async (req, res) => {

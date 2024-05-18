@@ -3,6 +3,7 @@ const request = require('supertest');
 const app = require('../../app'); // Adjust the path to your Express app
 
 describe('Project Routes', () => {
+    const projectName = 'Project for test-projects'
     let adminToken;
 
     beforeAll(async () => {
@@ -18,7 +19,7 @@ describe('Project Routes', () => {
 
     test('Create a new project', async () => {
         const projectData = {
-            name: 'New Project',
+            name: projectName,
             gitRepo: 'http://github.com/example/repo.git',
             bucket: 'example-bucket'
         };
@@ -57,7 +58,7 @@ describe('Project Routes', () => {
         const response = await request(app)
             .delete('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: 'New Project' });
+            .send({ name: projectName });
         expect(response.statusCode).toBe(204);
     });
 

@@ -5,7 +5,9 @@ const app = require('../../app');
 describe('Config and Branch Cascading Tests', () => {
     let adminToken;
     let apiToken;
-    const projectName = 'Project for test-configs'
+    const projectName = 'Project for test-tokens'
+    const branchName = 'Branch for api-test'
+    const cascadeBranchName = 'Cascade branch for api-test'
     let adminUserId;
 
     beforeAll(async () => {
@@ -39,7 +41,7 @@ describe('Config and Branch Cascading Tests', () => {
             await request(app)
                 .put('/api/branches')
                 .set('Authorization', `Bearer ${adminToken}`)
-                .send({ name: 'Branch for api-test', projectName: projectName, gitBranch: 'main' });
+                .send({ name: branchName, projectName: projectName, gitBranch: 'main' });
         } catch (error) {
             console.error(error)
             return
@@ -48,7 +50,7 @@ describe('Config and Branch Cascading Tests', () => {
             await request(app)
                 .put('/api/branches')
                 .set('Authorization', `Bearer ${adminToken}`)
-                .send({ name: 'Cascade branch for api-test', projectName: projectName, gitBranch: 'main' });
+                .send({ name: cascadeBranchName, projectName: projectName, gitBranch: 'main' });
         } catch (error) {
             console.error(error)
             return
@@ -65,7 +67,7 @@ describe('Config and Branch Cascading Tests', () => {
         const configRes = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${apiToken}`)
-            .send({ projectName: projectName, branchName: 'Branch for api-test', gitHash: 'abc123', userId: adminUserId });
+            .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
         expect(configRes.statusCode).toBe(201);
 
         // Delete project and cascade (not api token)

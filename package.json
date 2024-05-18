@@ -9,7 +9,8 @@
     "push": "npx prisma push",
     "test": "jest",
     "viewdb": "npx prisma studio",
-    "resetdb": "node util/resetdb.js"
+    "resetdb": "node util/resetdb.js",
+    "testworkflows": "act push"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",

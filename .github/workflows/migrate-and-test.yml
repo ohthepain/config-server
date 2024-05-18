@@ -1,32 +1,28 @@
-name: Run Jest Tests
+name: Migrate DB and Run Jest Tests
 
 on:
   push:
     branches:
       - main
       - dev
+      - build/workflows
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '20.x'
     - name: Install dependencies
       run: npm install
     - name: Run migrations
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run:
-        npx prisma migrate
+        npx prisma migrate dev
     - name: Run Jest tests
       run: npm test
       env: 

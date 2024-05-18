@@ -1,4 +1,4 @@
-name: Run Jest Tests
+name: Migrate DB and Run Jest Tests
 
 on:
   push:
@@ -23,12 +23,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npm install
-    - name: Print environment variable
-      run: echo "DATABASE_URL is $DATABASE_URL"
     - name: Run migrations
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run:
+        echo DATABASE_URL is $DATABASE_URL
         npx prisma migrate dev
     - name: Run Jest tests
       run: npm test

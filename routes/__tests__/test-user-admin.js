@@ -8,17 +8,27 @@ describe('Admin User Tests', () => {
   
     beforeAll(async () => {
         // Authenticate as admin
-        const adminResponse = await request(app)
+        var adminResponse = await request(app)
             .post('/api/auth')
             .send({
                 email: 'admin@pete.com', // Admin email
-                password: 'password'
+                password: process.env.TEST_ADMIN_PASSWORD
             });
-  
-        adminToken = adminResponse.body.accessToken; // Adjust according to actual response structure
+        adminToken = adminResponse.body.accessToken;
+
+        // Delete user if it's left over from a previous test
+        var response = await request(app)
+            .get(`/api/users`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ email: testUserEmail })
+        if (response.statusCode == 200) {
+            adminResponse = await request(app)
+                .delete(`/api/users?email=${testUserEmail}`)
+                .set('Authorization', `Bearer ${adminToken}`)
+        }
     });
     
-    // Test user registration
+    // Test register, retrieve, delete user
     test('Register a new user', async () => {
         const userData = {
             email: testUserEmail,
@@ -41,26 +51,33 @@ describe('Admin User Tests', () => {
                 email: testUserEmail
             });
         expect(response.statusCode).toBe(400);
-    });
 
-    // Test retrieving the registered user
-    test('Get the registered user', async () => {
-        const response = await request(app)
+        response = await request(app)
             .get(`/api/users`)
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ email: testUserEmail })
         expect(response.statusCode).toBe(200);
         expect(response.body.email).toBe(testUserEmail);
         user = response.body;
-    });
 
-    test('Get the registered user', async () => {
-        const response = await request(app)
+        response = await request(app)
             .get(`/api/users`)
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ id: user.id })
         expect(response.statusCode).toBe(200);
         expect(response.body.email).toBe(testUserEmail);
+        
+        response = await request(app)
+            .get(`/api/users`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ email: testUserEmail })
+        expect(response.statusCode).toBe(200);
+        expect(response.body.email).toBe(testUserEmail);
+
+        response = await request(app)
+            .delete(`/api/users?email=${testUserEmail}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(204);
     });
 
     test('Get user - bad email', async () => {
@@ -71,15 +88,6 @@ describe('Admin User Tests', () => {
         expect(response.statusCode).toBe(404);
     });
 
-    test('Get the registered user', async () => {
-        const response = await request(app)
-            .get(`/api/users`)
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ email: testUserEmail })
-        expect(response.statusCode).toBe(200);
-        expect(response.body.email).toBe(testUserEmail);
-    });
-
     test('Get all registered users', async () => {
         const response = await request(app)
             .get(`/api/users`)
@@ -88,20 +96,24 @@ describe('Admin User Tests', () => {
         expect(response.body.length > 0).toBe(true);
     });
 
-    // Test deleting the registered user
-    test('Delete the registered user', async () => {
+    test('Delete the registered user - unknown user', async () => {
         const response = await request(app)
-            .delete(`/api/users/${testUserEmail}`)
+            .delete(`/api/users?email=unknownuser`)
             .set('Authorization', `Bearer ${adminToken}`);
-
-        expect(response.statusCode).toBe(204);
+        expect(response.statusCode).toBe(404);
     });
 
-    test('Delete the registered user - bad request', async () => {
+    test('Delete the registered user - unknown user', async () => {
         const response = await request(app)
-            .delete(`/api/users/unknownuser`)
+            .delete(`/api/users?id=unknownuser`)
             .set('Authorization', `Bearer ${adminToken}`);
-
         expect(response.statusCode).toBe(404);
+    });
+
+    test('Delete the registered user - bad query', async () => {
+        const response = await request(app)
+            .delete(`/api/users?id=unknownuser&email=wevz`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(400);
     });
 });

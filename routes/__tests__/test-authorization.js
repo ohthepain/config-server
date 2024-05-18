@@ -20,7 +20,7 @@ describe('Authentication and Authorization Tests', () => {
           .post('/api/auth')
           .send({
             email: user.email,
-            password: 'password' // Assuming the password is 'password' for all
+            password: process.env.TEST_ADMIN_PASSWORD // Assuming the password is process.env.TEST_ADMIN_PASSWORD for all
           });
 
         token = response.body.accessToken; // Adjust according to the actual response structure

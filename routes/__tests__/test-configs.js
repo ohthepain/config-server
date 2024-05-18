@@ -12,7 +12,7 @@ describe('Config and Branch Cascading Tests', () => {
         // Authenticate and get token
         const adminRes = await request(app)
             .post('/api/auth')
-            .send({ email: 'admin@pete.com', password: 'password' });
+            .send({ email: 'admin@pete.com', password: process.env.TEST_ADMIN_PASSWORD });
         adminToken = adminRes.body.accessToken;
         adminUserId = adminRes.body.id;
 

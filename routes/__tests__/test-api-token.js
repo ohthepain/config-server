@@ -12,7 +12,7 @@ describe('Config and Branch Cascading Tests', () => {
         // Authenticate and get token
         const adminRes = await request(app)
             .post('/api/auth')
-            .send({ email: 'admin@pete.com', password: 'password' });
+            .send({ email: 'admin@pete.com', password: process.env.TEST_ADMIN_PASSWORD });
         adminToken = adminRes.body.accessToken;
         adminUserId = adminRes.body.id;
 
@@ -21,12 +21,11 @@ describe('Config and Branch Cascading Tests', () => {
         await request(app)
             .delete('/api/projects')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ ignoreErrors: true, 
-                name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
+            .send({ ignoreErrors: true, name: projectName });
 
         // Create project using admin token
         try {
-            const projectRes = await request(app)
+            await request(app)
                 .put('/api/projects')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });

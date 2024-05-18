@@ -1,5 +1,5 @@
-var createError = require('http-errors');
 "use strict";
+var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -14,7 +14,6 @@ var usersRouter = require('./routes/users');
 var projectsRouter = require('./routes/projects');
 
 const { PrismaClient } = require('@prisma/client')
-const { verifyToken } = require('./middleware/authJwt')
 
 var app = express();
 

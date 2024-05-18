@@ -11,7 +11,7 @@ describe('Project Routes', () => {
             .post('/api/auth')
             .send({
                 email: 'admin@pete.com',
-                password: 'password'
+                password: process.env.TEST_ADMIN_PASSWORD
             });
         adminToken = adminResponse.body.accessToken; // Adjust according to actual response structure
     });

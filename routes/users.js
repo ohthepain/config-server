@@ -1,40 +1,26 @@
 "use strict";
 var express = require('express');
 var router = express.Router();
-const bcrypt = require('bcrypt')
 const { verifyToken, isModerator, isAdmin, isUser, isModeratorOrAdmin } = require('../middleware/authJwt')
 const { checkDuplicateEmail, checkRolesExist } = require('../middleware/verifySignup')
 
+const { createUser } = require('../services/user.js')
+
 router.post('/register', [checkDuplicateEmail, checkRolesExist], async function(req, res, next) {
+  const prisma = req.prisma
   const { email, password, roles } = req.body
+
   if (!email || !password) {
     return res.status(400).send('Email and password are required');
   }
 
   try {
-    const prisma = req.prisma
-    const result = await prisma.$transaction(async (prisma) => {
-      let user = await prisma.user.create({
-        data: {
-          email: email,
-          password: bcrypt.hashSync(password, 8)
-        },
-      })
-
-      // Associate roles
-      await Promise.all(roles.map(roleName => {
-        return prisma.userRole.create({
-          data: {
-            userId: user.id,
-            roleId: roleName  // Assuming roleName is the ID in the Role model
-          }
-        });
-      }));
-
-      return user
-    })
-
-    res.status(201).send({ message: "User created successfully", id: result.id });
+    const user = await createUser(prisma, email, password, roles)
+    if (user) {
+      return res.status(201).send(user);
+    } else {
+      return res.status(500).send({ message: "Some error occurred while creating the User." });
+    } 
   } catch (error) {
     console.log(error)
     next(error)
@@ -50,8 +36,13 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
   try {
     const prisma = req.prisma
 
+    // WTH is this?
+    // if (prisma.user.findUnique({ where: { email: email }})) {
+    //   return res.status(400).send("Email already registered")
+    // }
+
     if (!email && !id) {
-      const all = await req.prisma.branch.findMany()
+      const all = await req.prisma.user.findMany()
       return res.send(all)
     }
     else if (id) {
@@ -74,19 +65,30 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
   }
 });
 
-router.delete('/:email', [verifyToken, isModeratorOrAdmin], async function(req, res, next) {
-  const { email } = req.params;
-  if (!email) {
-    return res.status(400).send('email is required');
+router.delete('/', [verifyToken, isModeratorOrAdmin], async function(req, res, next) {
+  const { id, email } = req.query
+  if (!id && !email) {
+    return res.status(400).send('Required: user id or email')
+  }
+  if (id && email) {
+    return res.status(400).send('id or email is required, not both');
   }
 
   try {
     const prisma = req.prisma;
-    await prisma.user.delete({
-      where: {
-        email: email,
-      },
-    });
+    if (id) {
+      await prisma.user.delete({
+        where: {
+          id: id,
+        },
+      });
+    } else {
+      await prisma.user.delete({
+        where: {
+          email: email,
+        },
+      });
+    }
     res.status(204).send({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(404).send({ message: 'User not found' });

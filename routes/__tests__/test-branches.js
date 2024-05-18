@@ -13,7 +13,7 @@ describe('Branch Routes', () => {
             .post('/api/auth')
             .send({
                 email: 'admin@pete.com',
-                password: 'password'
+                password: process.env.TEST_ADMIN_PASSWORD
             });
         adminToken = adminResponse.body.accessToken;
 

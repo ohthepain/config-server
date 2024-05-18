@@ -8,7 +8,8 @@
     "migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
     "push": "npx prisma push",
     "test": "jest",
-    "viewdb": "npx prisma studio"
+    "viewdb": "npx prisma studio",
+    "resetdb": "node util/resetdb.js"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
@@ -28,9 +29,10 @@
     "supertest": "^7.0.0"
   },
   "jest": {
+    "globalSetup": "./routes/__tests__/create-test-users.js",
     "testEnvironment": "node",
     "testMatch": [
-      "**/__tests__/**/*.js?(x)",
+      "**/__tests__/**/test*.js?(x)",
       "**/?(*.)+(spec|test).js?(x)"
     ],
     "collectCoverage": true,
@@ -38,7 +40,8 @@
       "**/*.{js,jsx}",
       "!**/node_modules/**",
       "!**/coverage/**",
-      "!**/vendor/**"
+      "!**/vendor/**",
+      "!./util/**"
     ],
     "coverageThreshold": {
       "global": {

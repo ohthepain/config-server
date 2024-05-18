@@ -10,24 +10,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '20.x'
     - name: Install dependencies
       run: npm install
     - name: Run migrations
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run:
-        echo DATABASE_URL is $DATABASE_URL
         npx prisma migrate dev
     - name: Run Jest tests
       run: npm test

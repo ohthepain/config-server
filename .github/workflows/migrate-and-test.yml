@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - build/workflows
 
 jobs:
   build:
@@ -22,11 +23,13 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npm install
+    - name: Print environment variable
+      run: echo "DATABASE_URL is $DATABASE_URL"
     - name: Run migrations
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run:
-        npx prisma migrate
+        npx prisma migrate dev
     - name: Run Jest tests
       run: npm test
       env: 

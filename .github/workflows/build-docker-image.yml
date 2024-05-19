@@ -38,5 +38,5 @@ jobs:
         tags: ohthepain/config-server:latest
 
     - name: Run tests
-      run: docker run --rm ohthepain/config-server:latest npm run test
+      run: docker run -e "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" -e "TEST_ADMIN_PASSWORD=${{ secrets.TEST_ADMIN_PASSWORD }} -e "DATABASE_URL=postgresql://postgres:fuqjUk-zadmat-6hungu@yogadb.c0gkoazda8iy.eu-central-1.rds.amazonaws.com:5432/yogadb?schema=public&connect_timeout=30" --rm ohthepain/config-server:latest npm run test
 

@@ -10,11 +10,9 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate
-RUN npx prisma migrate dev
+# Use github workflow for migration. Too many issues with docker/prisma/secrets/db access
+# RUN npx prisma migrate dev --verbose
 
 EXPOSE 3000
-
-# Define environment variable
-ENV NODE_ENV production
 
 CMD ["node", "/usr/src/app/main.js"]

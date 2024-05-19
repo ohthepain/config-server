@@ -12,6 +12,7 @@
     "dockerrun": "docker run --name config-server-container -p 3000:3000 -d config-server",
     "dockerdebug": "docker run --name config-server-container -p 3000:3000 config-server",
     "dockertest": "docker run --rm config-server npm run test",
+    "dockerpull": "docker pull ohthepain/config-server:latest",
     "dockerclean": "sh ./docker_cleanup.sh",
     "viewdb": "npx prisma studio",
     "resetdb": "npx prisma migrate reset",

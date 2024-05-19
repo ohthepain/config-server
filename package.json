@@ -3,13 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./main.js",
     "generate": "npx prisma generate",
     "migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
     "push": "npx prisma push",
     "test": "jest",
+    "dockerbuild": "sh ./docker_cleanup.sh && docker build -t config-server .",
+    "dockerrun": "docker run --name config-server-container -p 3000:3000 -d config-server",
+    "dockerdebug": "docker run --name config-server-container -p 3000:3000 config-server",
+    "dockertest": "docker run --rm config-server npm run test",
+    "dockerclean": "sh ./docker_cleanup.sh",
     "viewdb": "npx prisma studio",
-    "resetdb": "node util/resetdb.js",
+    "resetdb": "npx prisma migrate reset",
     "testworkflows": "act push"
   },
   "dependencies": {

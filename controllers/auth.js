@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-signIn = async (req, res) => {
+const signIn = async (req, res) => {
     const prisma = req.prisma
     const email = req.body.email
     const password = req.body.password
@@ -62,7 +62,7 @@ signIn = async (req, res) => {
     };
 };
 
-createApiToken = async (req, res) => {
+const createApiToken = async (req, res) => {
     const token = jwt.sign({
             // Need a userid due to the config-user db relation
             id: req.userId,

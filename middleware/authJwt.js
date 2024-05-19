@@ -1,3 +1,4 @@
+"use strict"
 const jwt = require("jsonwebtoken");
 
 // NOTE: Stores the user ID in the request object
@@ -42,7 +43,7 @@ async function isAdmin(req, res, next) {
   }
 };
 
-isModerator = async (req, res, next) => {
+const isModerator = async (req, res, next) => {
   if (req.decodedToken.roles.includes('ROLE_MODERATOR')) {
     next();
   } else {
@@ -52,7 +53,7 @@ isModerator = async (req, res, next) => {
   }
 };
 
-isModeratorOrAdmin = async (req, res, next) => {
+const isModeratorOrAdmin = async (req, res, next) => {
   if (req.decodedToken.roles.includes('ROLE_ADMIN') || req.decodedToken.roles.includes('ROLE_MODERATOR')) {
     next();
   } else {
@@ -62,7 +63,7 @@ isModeratorOrAdmin = async (req, res, next) => {
   }
 };
 
-isSuperAdmin = async (req, res, next) => {
+const isSuperAdmin = async (req, res, next) => {
   if (req.decodedToken.roles.includes('ROLE_SUPERADMIN')) {
     next();
   } else {

@@ -1,8 +1,8 @@
-
-checkDuplicateEmail = async (req, res, next) => {
+"use strict"
+const checkDuplicateEmail = async (req, res, next) => {
     const email = req.body.email
     try {
-        prisma = req.prisma
+        const prisma = req.prisma
         const exists = await prisma.user.findUnique({ where: { email: email } });
         if (exists) {
             res.status(400).send({
@@ -18,10 +18,10 @@ checkDuplicateEmail = async (req, res, next) => {
     next();
 };
 
-checkRolesExist = async (req, res, next) => {
+const checkRolesExist = async (req, res, next) => {
     const roles = req.body.roles
     try {
-        prisma = req.prisma
+        const prisma = req.prisma
         if (roles) {
             for (let i = 0; i < roles.length; i++) {
                 const query = { where: { name: roles[i] } };

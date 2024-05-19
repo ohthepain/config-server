@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 const { signIn, createApiToken } = require('../controllers/auth')
-const { verifyToken, isModerator, isAdmin, isUser, isModeratorOrAdmin } = require('../middleware/authJwt')
+const { verifyToken, isModerator, isAdmin, isUser, isModeratorOrAdmin, isSuperAdmin } = require('../middleware/authJwt')
 
 router.get("/test/user", [verifyToken], async function(req, res, next) {
   res.status(200).send("Public Content.");

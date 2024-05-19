@@ -1,7 +1,7 @@
 API Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE1OTE5NjE3LCJleHAiOjE3NDc0NzcyMTd9.UNLcvZxNk3P5oF9bG8d6Oh7qRjEPYnRqTLs_nUvWS48
 
 Auth:
-curl -X POST localhost:3000/api/auth  -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "password"}'
+curl -X POST localhost:3000/api/auth  -H "Content-Type: application/json" -d '{"email": "admin@pete.com", "password": "978sdf89p_7dfs879dsf897sdf"}'
 
 Get API Token:
 curl -X GET localhost:3000/api/auth/api-token -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyMTRiNGI5LWJkOTctNGYzMS04NzNlLTIxODJhNTI0ODAxMiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX01PREVSQVRPUiIsIlJPTEVfVVNFUiJdLCJpYXQiOjE3MTU5MTk0OTgsImV4cCI6MTcxNjAwNTg5OH0.JijJZHxbboHlGlkdOXKHelxkC8F9qMguzSlkdP2ZTMQ"

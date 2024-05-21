@@ -13,6 +13,7 @@
     "dockerdebug": "docker run --name config-server-container -p 3000:3000 config-server",
     "dockertest": "docker run --rm config-server npm run test",
     "dockerpull": "docker pull ohthepain/config-server:latest",
+    "dockerpush": "echo do not push from your machine. image was build with your machine architecture. correct architecture is graviton",
     "dockerclean": "sh ./docker_cleanup.sh",
     "viewdb": "npx prisma studio",
     "resetdb": "npx prisma migrate reset",

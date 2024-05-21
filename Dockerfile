@@ -1,4 +1,5 @@
-FROM node:20-alpine
+# graviton
+FROM --platform=linux/arm64 node:20-alpine
 
 WORKDIR /usr/src/app
 

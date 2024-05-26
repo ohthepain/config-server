@@ -1,0 +1,16 @@
+
+model YogaUser {
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  yogaSessions YogaSession[]
+}
+
+model YogaSession {
+    id           String        @id @default(uuid())
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    sessionId    String
+    yogaUserId   String
+    yogaUser YogaUser @relation(fields: [yogaUserId], references: [id], onDelete: Cascade)
+}

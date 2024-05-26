@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./main.js",
-    "generate": "npx prisma generate",
-    "migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
+    "getschema": "cp prisma/config-schema.prisma ../shared-db/prisma/ && cd ../shared-db && node concatenate-schemas.js && cd ../config-server && cp ../shared-db/prisma/schema.prisma ./prisma/ ",
+    "generate": "echo 'remember to getschema first' && npx prisma generate",
+    "migrate": "cd ../shared-db && npx prisma migrate dev --schema=./prisma/schema.prisma && cd ../config-server",
     "push": "npx prisma push",
     "test": "jest",
     "dockerbuild": "sh ./docker_cleanup.sh && docker build -t config-server .",
@@ -22,7 +23,6 @@
   "dependencies": {
     "@prisma/client": "^5.14.0",
     "bcrypt": "^5.1.1",
-    "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
     "express": "~4.16.1",
@@ -32,6 +32,8 @@
     "morgan": "~1.9.1"
   },
   "devDependencies": {
+    "eslint": "^9.3.0",
+    "eslint-plugin-json": "^3.1.0",
     "jest": "^29.7.0",
     "prisma": "^5.14.0",
     "supertest": "^7.0.0"
@@ -59,6 +61,11 @@
         "statements": 50
       }
     },
-    "coverageReporters": ["json", "lcov", "text", "clover"]
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "clover"
+    ]
   }
 }

@@ -92,7 +92,7 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
       res.status(201).send(newConfig);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Failed to create configuration');
+        res.status(500).send('Failed to create configuration: ' + error.message);
     }
 });
 
@@ -105,7 +105,7 @@ router.put('/update-status', [verifyToken, isUser], async function(req, res, nex
   }
 
   if (status != "WAITING" && status != "BUILDING") {
-    return res.status(400).send('Status can only be WAITING or BUILDING. DONE');
+    return res.status(400).send('Status can only be WAITING or BUILDING.');
   }
 
   try {

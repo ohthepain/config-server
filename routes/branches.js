@@ -57,7 +57,7 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
   const prisma = req.prisma
   if (id) {
     if (name || projectId) {
-      return res.status(400).send("branch id cannot combine with and branch name or projectId");  
+      return res.status(400).send("either branch id OR branch name and projectId");  
     }
     const branch = await prisma.branch.findUnique({ where: { id: id }})
     return res.send(branch)

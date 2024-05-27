@@ -64,7 +64,7 @@ model Environment {
   project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   configId             Int?
   config               Config?   @relation(fields: [configId], references: [id])
-  status               String   @default("CREATED")
+//   status               String   @default("CREATED")
   claimedByUserId      String?
   claimedByUser        User?    @relation(fields: [claimedByUserId], references: [id])
   globalTimeTravel     Int
@@ -73,8 +73,8 @@ model Environment {
   downloadUrl          String   @db.VarChar(1024)
   clientDownloadBucket String   @db.VarChar(1024)
   clientDownloadKey    String   @db.VarChar(1024)
-  awsAccessKey         String   @db.VarChar(1024)
-  awsSecretKey         String   @db.VarChar(1024)
+//   awsAccessKey         String   @db.VarChar(1024)
+//   awsSecretKey         String   @db.VarChar(1024)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }

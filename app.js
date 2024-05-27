@@ -3,6 +3,7 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+const cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var configsRouter = require('./routes/configs');
@@ -22,6 +23,12 @@ app.use(async (req, res, next) => {
   req.prisma = prisma
   next()
 })
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

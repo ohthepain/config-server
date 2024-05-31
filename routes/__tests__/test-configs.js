@@ -9,6 +9,7 @@ describe('Config and Branch Cascading Tests', () => {
     const branchName = 'Branch for test-configs'
     const cascadeBranchName = 'Cascade branch for test-configs'
     let adminUserId;
+    let branchId;
 
     beforeAll(async () => {
         // Authenticate and get token
@@ -37,10 +38,12 @@ describe('Config and Branch Cascading Tests', () => {
         }
 
         // Create branches
-        await request(app)
+        const response = await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ name: branchName, projectName: projectName, gitBranch: 'main' });
+            branchId = response.body.id;
+            
         await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -104,6 +107,13 @@ describe('Config and Branch Cascading Tests', () => {
             .set('Authorization', `Bearer ${adminToken}`)
             .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
         expect(configRes.statusCode).toBe(201);
+
+        // Create config
+        const configRes2 = await request(app)
+            .post('/api/configs')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
+        expect(configRes2.statusCode).toBe(201);
 
         const configId = configRes.body.id;
         var response = await request(app)

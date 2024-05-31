@@ -49,47 +49,67 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
 
 // New config
 router.post('/', [verifyToken, isUser], async function(req, res, next) {
-    const { projectName, branchName, gitHash } = req.body;
+    var { projectName, branchName, gitHash, branchId, projectId } = req.body;
+
+    if (!gitHash) {
+        return res.status(400).send('gitHash is required');
+    }
+
+    if (branchId) {
+        if (projectName || branchName) {
+            return res.status(400).send('Cannot specify branchId and projectName or branchName');
+        }
+    }
+
+    if (projectId && projectName) {
+        return res.status(400).send('Cannot specify projectId and projectName');
+    }
 
     if (!projectName || !branchName) {
         return res.status(400).send('All of projectId, branchId and gitHash are required');
     }
 
     try {
-      const prisma = req.prisma;
-      const project = await prisma.project.findUnique({ where: { name: projectName } });
-      if (!project) {
-        return res.status(404).send('Project not found');
-      }
-  
-      const branch = await prisma.branch.findUnique({ where: { name: branchName } });
-      if (!branch) {
-        return res.status(404).send('Branch not found');
-      }
-
-      const newConfig = await req.prisma.config.create({
-          data: {
-              status: "CREATED",
-              projectId: project.id,
-              branchId: branch.id,
-              gitHash: gitHash,
-              userId: req.userId || "api token",
-          }
-      });
-
-      if (req.decodedToken && req.decodedToken.exp) {
-        const now = new Date();
-        const issuedAt = new Date(req.decodedToken.iat * 1000);
-        const expiresAt = new Date(req.decodedToken.exp * 1000);
-        const age = now - issuedAt;
-        const oneMonth = 30 * 24 * 60 * 60 * 1000;
-        const timeUntilExpiration = expiresAt - now;
-        if (age > oneMonth && timeUntilExpiration < oneMonth) {
-            newConfig.message = `Your API token expires ${new Date(req.decodedToken.exp * 1000)}! Please generate a new one.`
+        const prisma = req.prisma;
+        if (!projectId) {
+            const project = await prisma.project.findUnique({ where: { name: projectName } });
+            if (!project) {
+                return res.status(404).send('Project not found');
+            }
+            projectId = project.id
         }
-      }
 
-      res.status(201).send(newConfig);
+        if (!branchId) {
+            const branch = await prisma.branch.findUnique({ where: { name: branchName } });
+            if (!branch) {
+                return res.status(404).send('Branch not found');
+            }
+            branchId = branch.id
+        }
+      
+        const newConfig = await req.prisma.config.create({
+            data: {
+                status: "CREATED",
+                projectId: projectId,
+                branchId: branchId,
+                gitHash: gitHash,
+                userId: req.userId || "api token",
+            }
+        });
+
+        if (req.decodedToken && req.decodedToken.exp) {
+            const now = new Date();
+            const issuedAt = new Date(req.decodedToken.iat * 1000);
+            const expiresAt = new Date(req.decodedToken.exp * 1000);
+            const age = now - issuedAt;
+            const oneMonth = 30 * 24 * 60 * 60 * 1000;
+            const timeUntilExpiration = expiresAt - now;
+            if (age > oneMonth && timeUntilExpiration < oneMonth) {
+                newConfig.message = `Your API token expires ${new Date(req.decodedToken.exp * 1000)}! Please generate a new one.`
+            }
+        }
+
+        res.status(201).send(newConfig);
     } catch (error) {
         console.error(error);
         res.status(500).send('Failed to create configuration: ' + error.message);

@@ -5,6 +5,13 @@ const path = require('path');
 const logger = require('morgan');
 const cors = require('cors');
 
+const tracer = require('dd-trace').init({
+    service: 'config-server',
+    env: 'PROD',
+    logInjection: true,
+    analytics: true
+});
+
 var indexRouter = require('./routes/index');
 var configsRouter = require('./routes/configs');
 var branchesRouter = require('./routes/branches');
@@ -21,6 +28,7 @@ const prisma = new PrismaClient()
 
 app.use(async (req, res, next) => {
   req.prisma = prisma
+  req.tracer = tracer
   next()
 })
 

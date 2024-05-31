@@ -23,7 +23,7 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
 
     // Validate required fields
     if (!name || !projectId) {
-        return res.status(400).send('Branch: name, projectId are required');
+        return res.status(400).send('Environment: name and projectId are required');
     }
 
     try {

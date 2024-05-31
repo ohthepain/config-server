@@ -1,0 +1,151 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "config-server",
+            "image": "docker.io/ohthepain/config-server:arm64-latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "8000",
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "ACCESS_TOKEN_SECRET",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/ACCESS_TOKEN_SECRET"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/CONFIG_SERVER_DATABASE_URL"
+                },
+                {
+                    "name": "TEST_ADMIN_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/CONFIG_SERVICE_TEST_ADMIN_PASSWORD"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/config-server-task",
+                    "awslogs-region": "eu-central-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "config-server-task",
+    "taskRoleArn": "arn:aws:iam::624615356298:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::624615356298:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "ARM64",
+        "operatingSystemFamily": "LINUX"
+    }
+}
+
+
+
+
+
+{
+    "containerDefinitions": [
+        {
+            "name": "config",
+            "image": "docker.io/ohthepain/config-server:arm64-latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "3000",
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "secrets": [
+                {
+                    "name": "ACCESS_TOKEN_SECRET",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/ACCESS_TOKEN_SECRET"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/CONFIG_SERVER_DATABASE_URL"
+                },
+                {
+                    "name": "TEST_ADMIN_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:eu-central-1:624615356298:parameter/CONFIG_SERVICE_TEST_ADMIN_PASSWORD"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "systemControls": []
+        }
+    ],
+    "family": "config-server",
+    "executionRoleArn": "arn:aws:iam::624615356298:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "1024",
+    "runtimePlatform": {
+        "cpuArchitecture": "ARM64",
+        "operatingSystemFamily": "LINUX"
+    }
+}
+
+
+

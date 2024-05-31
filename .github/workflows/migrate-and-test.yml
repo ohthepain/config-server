@@ -18,11 +18,11 @@ jobs:
         node-version: '20.x'
     - name: Install dependencies
       run: npm install
-    - name: Run migrations
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      run:
-        npx prisma migrate dev
+    # - name: Run migrations
+    #   env:
+    #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    #   run:
+    #     npx prisma migrate dev
     - name: Run Jest tests
       run: npm test
       env: 

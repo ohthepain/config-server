@@ -55,7 +55,14 @@ describe('Environment Routes', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveProperty('id');
 
-        // Retrieve the environment
+        // Retrieve environments for project
+        response = await request(app)
+            .get(`/api/environments?projectId=${projectId}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body[0]).toHaveProperty('id');
+
+        // Retrieve the environment by name and project id
         response = await request(app)
             .get(`/api/environments?name=${environmentName}&projectId=${projectId}`)
             .set('Authorization', `Bearer ${adminToken}`);
@@ -88,8 +95,8 @@ describe('Environment Routes', () => {
             .set('Authorization', `Bearer ${adminToken}`);
         expect(response.statusCode).toBe(404);
 
-        // Update the environment
-        const updateData = {
+        // Update the environment by name and project id
+        var updateData = {
             name: environmentName,
             projectId: projectId
         };
@@ -99,11 +106,18 @@ describe('Environment Routes', () => {
             .send(updateData);
         expect(response.statusCode).toBe(200);
 
+        // Update the environment by id
+        response = await request(app)
+            .put('/api/environments')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({id: environmentId});
+        expect(response.statusCode).toBe(200);
+
         // Delete the environment
         response = await request(app)
-            .delete('/api/environments')
+            .delete('/api/environments?id=' + environmentId)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: environmentName, projectId: projectId });
+            .send();
         expect(response.statusCode).toBe(204);
     });
 
@@ -137,17 +151,6 @@ describe('Environment Routes', () => {
 
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(response.body)).toBeTruthy();
-    });
-
-    test('Delete an environment with no projectId', async () => {
-        const updateData = {
-            name: environmentName,
-        };
-        const response = await request(app)
-            .delete('/api/environments')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send(updateData);
-        expect(response.statusCode).toBe(400);
     });
 
     test('Retrieve an environment with no projectId', async () => {

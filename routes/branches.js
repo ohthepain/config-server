@@ -4,21 +4,20 @@ var router = express.Router();
 const { verifyToken, isUser, isAdmin } = require('../middleware/authJwt')
 
 router.put('/', [verifyToken, isUser], async function(req, res, next) {
-  const { name, projectName, gitBranch } = req.body
-  if (!name || !projectName || !gitBranch) {
-    return res.status(400).send('Branch: name, projectId and git branch are required');
+  const { projectId, gitBranch } = req.body
+  if (!projectId || !gitBranch) {
+    return res.status(400).send('Branch: projectId and git branch are required');
   }
 
   try {
     const prisma = req.prisma
-    const project = await prisma.project.findUnique({ where: { name: projectName } });
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
     if (!project) {
       return res.status(404).send('Project not found');
     }
     
     const branch = await prisma.branch.create({
       data: {
-        name: name,
         projectId: project.id,
         gitBranch: gitBranch,
       },
@@ -32,16 +31,16 @@ router.put('/', [verifyToken, isUser], async function(req, res, next) {
 });
 
 router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
-  const { name, projectId } = req.body
-  if (!name || !projectId) {
-    return res.status(400).send('Branch name and projectId are required');
+  const { gitBranch, projectId } = req.body
+  if (!gitBranch || !projectId) {
+    return res.status(400).send('Branch gitBranch and projectId are required');
   }
 
   try {
     const prisma = req.prisma
     await prisma.branch.delete({
       where: {
-        name: name,
+        gitBranch: gitBranch,
         projectId: projectId
       },
     })
@@ -53,24 +52,28 @@ router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
 });
 
 router.get('/', [verifyToken, isUser], async function(req, res, next) {
-    const { id, name, projectId } = req.query;
+    const { id, gitBranch, projectId } = req.query;
     const prisma = req.prisma
     if (id) {
-        if (name || projectId) {
-            return res.status(400).send("either branch id OR branch name and projectId");  
+        if (gitBranch || projectId) {
+            return res.status(400).send("either branch id OR branch gitBranch and projectId");  
         }
         const branch = await prisma.branch.findUnique({ where: { id: id }})
         return res.send(branch)
     }
-    else if (name) {
+    else if (projectId) {
+        const branches = await prisma.branch.findMany({ where: { projectId: projectId }})
+        return res.send(branches)
+    }
+    else if (gitBranch) {
         if (!projectId) {
-            return res.status(400).send("Branch name requires projectId (think dev, main,ect)");  
+            return res.status(400).send("Branch gitBranch requires projectId (think dev, main,ect)");  
         } else {
-            const branch = await prisma.branch.findUnique({ where: { name: name, projectId: projectId }})
+            const branch = await prisma.branch.findUnique({ where: { gitBranch: gitBranch, projectId: projectId }})
             if (branch) {
                 return res.send(branch)
             } else {
-                return res.status(404).send(`Could not find branch with name $<name> for projectId ${projectId}`)
+                return res.status(404).send(`Could not find branch with gitBranch $<gitBranch> for projectId ${projectId}`)
             }
         }
     } else {

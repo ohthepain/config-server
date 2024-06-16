@@ -1,4 +1,3 @@
-
 // generator client {
 //   provider = "prisma-client-js"
 // }
@@ -11,96 +10,97 @@
 // Uncomment the stuff above if you want to highlight errors
 
 enum ConfigStatus {
-  CREATED
-  WAITING
-  BUILDING
-  DONE
+    CREATED
+    WAITING
+    BUILDING
+    DONE
 }
 
 model Project {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  // configs   Config[]
-  branches  Branch[]
-  gitRepo   String?  @db.VarChar(1024)
-  bucket    String?  @db.VarChar(1024)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  environments Environment[]
+    id           String        @id @default(uuid())
+    name         String        @unique
+    // configs   Config[]
+    branches     Branch[]
+    gitRepo      String?       @db.VarChar(1024)
+    bucket       String?       @db.VarChar(1024)
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    environments Environment[]
 }
 
 model Branch {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String   @unique @db.VarChar(255)
-  gitBranch String?  @db.VarChar(255)
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  configs   Config[]
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // name      String   @db.VarChar(255)
+    gitBranch String?  @db.VarChar(255)
+    project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId String
+    configs   Config[]
+
+    @@unique([projectId, gitBranch])
 }
 
 model Config {
-  id          Int          @id @unique @default(autoincrement())
-  status      ConfigStatus @default(CREATED)
-  projectId   String
-  branch      Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  branchId    String
-  environments Environment[]
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  notes       String?      @db.VarChar(1024)
-  gitHash     String       @db.VarChar(255)
-  downloadUrl String?      @db.VarChar(1024)
-  checksumMd5 String?      @db.VarChar(255)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+    id           Int           @id @unique @default(autoincrement())
+    status       ConfigStatus  @default(CREATED)
+    projectId    String
+    branch       Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade)
+    branchId     String
+    environments Environment[]
+    userId       String
+    user         User          @relation(fields: [userId], references: [id])
+    notes        String?       @db.VarChar(1024)
+    gitHash      String        @db.VarChar(255)
+    downloadUrl  String?       @db.VarChar(1024)
+    checksumMd5  String?       @db.VarChar(255)
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 }
 
 model Environment {
-  id                   String   @id @default(uuid())
-  name                 String   @unique
-  projectId            String
-  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  configId             Int?
-  config               Config?   @relation(fields: [configId], references: [id])
-//   status               String   @default("CREATED")
-  claimedByUserId      String?
-  claimedByUser        User?    @relation(fields: [claimedByUserId], references: [id])
-  globalTimeTravel     Int
-  notificationUrl      String   @db.VarChar(1024)
-  uploadLocation       String   @db.VarChar(1024)
-  downloadUrl          String   @db.VarChar(1024)
-  clientDownloadBucket String   @db.VarChar(1024)
-  clientDownloadKey    String   @db.VarChar(1024)
-//   awsAccessKey         String   @db.VarChar(1024)
-//   awsSecretKey         String   @db.VarChar(1024)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+    id                   String   @id @default(uuid())
+    name                 String   @unique
+    projectId            String
+    project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    configId             Int?
+    config               Config?  @relation(fields: [configId], references: [id])
+    claimedByUserId      String?
+    claimedByUser        User?    @relation(fields: [claimedByUserId], references: [id])
+    globalTimeTravel     Int
+    notificationUrl      String   @db.VarChar(1024)
+    uploadLocation       String   @db.VarChar(1024)
+    downloadUrl          String   @db.VarChar(1024)
+    awsRegion            String?  @db.VarChar(128)  @default("eu-central-1")
+    clientDownloadBucket String   @db.VarChar(1024)
+    clientDownloadKey    String   @db.VarChar(1024)
+    warningMessage       String?  @db.VarChar(1024)
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
 }
 
 model User {
-  id           String        @id @default(uuid())
-  password     String
-  email        String        @unique
-  environments Environment[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  roles        UserRole[]
-  configs      Config[]
+    id           String        @id @default(uuid())
+    password     String
+    email        String        @unique
+    environments Environment[]
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    roles        UserRole[]
+    configs      Config[]
 }
 
 model Role {
-  name  String     @id
-  users UserRole[]
+    name  String     @id
+    users UserRole[]
 }
 
 model UserRole {
-  userId String
-  roleId String
+    userId String
+    roleId String
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [name])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role Role @relation(fields: [roleId], references: [name])
 
-  @@id([userId, roleId])
+    @@id([userId, roleId])
 }

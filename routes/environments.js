@@ -4,9 +4,10 @@ var express = require('express');
 var router = express.Router();
 const { verifyToken, isUser, isAdmin } = require('../middleware/authJwt');
 
-// PUT route to create or update an environment
+// Create or update an environment
 router.put('/', [verifyToken, isUser], async function (req, res, next) {
     const {
+        id,
         name,
         projectId,
         configId,
@@ -17,26 +18,29 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
         downloadUrl,
         clientDownloadBucket,
         clientDownloadKey,
-        awsAccessKey,
-        awsSecretKey
+        awsRegion,
+        warningMessage
     } = req.body;
 
-    // Validate required fields
-    if (!name || !projectId) {
-        return res.status(400).send('Environment: name and projectId are required');
+    if (!id && !name || !projectId) {
+        return res.status(400).send('Environment: please specify name and or projectId)');
     }
 
     try {
         const prisma = req.prisma;
 
-        // Check if the project exists
-        const project = await prisma.project.findUnique({ where: { id: projectId } });
-        if (!project) {
-            return res.status(404).send('Project not found');
-        }
+        var environment
+        if (id) {
+            environment = await prisma.environment.findUnique({ where: { id: id } });
+        } else {
+            // Check if the project exists
+            const project = await prisma.project.findUnique({ where: { id: projectId } });
+            if (!project) {
+                return res.status(404).send('Project not found');
+            }
 
-        // Check if the environment exists
-        let environment = await prisma.environment.findUnique({ where: { name: name, projectId: project.id } });
+            environment = await prisma.environment.findUnique({ where: { name: name, projectId: project.id } });
+        }
 
         if (environment) {
             // Update existing environment
@@ -52,8 +56,8 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
                     downloadUrl: downloadUrl || environment.downloadUrl,
                     clientDownloadBucket: clientDownloadBucket || environment.clientDownloadBucket,
                     clientDownloadKey: clientDownloadKey || environment.clientDownloadKey,
-                    awsAccessKey: awsAccessKey || environment.awsAccessKey,
-                    awsSecretKey: awsSecretKey || environment.awsSecretKey
+                    awsRegion: awsRegion || environment.awsRegion,
+                    warningMessage: warningMessage || environment.warningMessage
                 }
             });
         } else {
@@ -69,8 +73,8 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
                     downloadUrl: "",
                     clientDownloadBucket: "",
                     clientDownloadKey: "",
-                    awsAccessKey: "",
-                    awsSecretKey: ""
+                    awsRegion: "",
+                    warningMessage: ""
                 }
             });
         }
@@ -82,8 +86,7 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
     }
 });
 
-
-// PUT route to create or update an environment
+// Deploy config to environment
 router.put('/deploy', [verifyToken, isUser], async function (req, res, next) {
     const {
         environmentId,
@@ -118,26 +121,17 @@ router.put('/deploy', [verifyToken, isUser], async function (req, res, next) {
     }
 });
 
-// DELETE route to delete an environment
 router.delete('/', [verifyToken, isAdmin], async function (req, res, next) {
-    const { name, projectId } = req.body;
+    const { id } = req.query;
 
     // Validate required fields
-    if (!name || !projectId) {
-        return res.status(400).send('Environment name and projectId are required');
+    if (!id) {
+         return res.status(400).send('No id was provided');
     }
 
     try {
         const prisma = req.prisma;
-
-        // Delete the environment
-        await prisma.environment.delete({
-            where: {
-                name: name,
-                projectId: projectId
-            }
-        });
-
+        await prisma.environment.delete({ where: { id: id } });
         res.status(204).send([]);
     } catch (error) {
         console.log(error);
@@ -174,9 +168,14 @@ router.get('/', [verifyToken, isUser], async function (req, res, next) {
                     return res.status(404).send(`Could not find environment with name ${name} for projectId ${projectId}`);
                 }
             }
+        } else if (projectId){
+            console.log(`get project environments`)
+            const environments = await prisma.environment.findMany({ where: { projectId: projectId } });
+            return res.send(environments);
         } else {
-            const allEnvironments = await prisma.environment.findMany();
-            return res.send(allEnvironments);
+            console.log(`get ALL environments`)
+            const projectEnvirenvironmentsonments = await prisma.environment.findMany();
+            return res.send(environments);
         }
     } catch (error) {
         console.log(error);

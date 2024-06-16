@@ -1,74 +1,87 @@
 "use strict";
-const request = require('supertest');
-const app = require('../../app'); // Adjust the path to your Express app
+const request = require("supertest");
+const app = require("../../app"); // Adjust the path to your Express app
 
-describe('Project Routes', () => {
-    const projectName = 'Project for test-projects'
-    let adminToken;
+describe("Project Routes", () => {
+  const projectName = "Project for test-projects";
+  let adminToken;
+  let projectId;
 
-    beforeAll(async () => {
-        // Authenticate as admin and obtain token
-        const adminResponse = await request(app)
-            .post('/api/auth')
-            .send({
-                email: 'admin@pete.com',
-                password: process.env.TEST_ADMIN_PASSWORD
-            });
-        adminToken = adminResponse.body.accessToken; // Adjust according to actual response structure
+  beforeAll(async () => {
+    // Authenticate as admin and obtain token
+    const adminResponse = await request(app).post("/api/auth").send({
+      email: "admin@pete.com",
+      password: process.env.TEST_ADMIN_PASSWORD,
     });
+    adminToken = adminResponse.body.accessToken; // Adjust according to actual response structure
 
-    test('Create a new project', async () => {
-        const projectData = {
-            name: projectName,
-            gitRepo: 'http://github.com/example/repo.git',
-            bucket: 'example-bucket'
-        };
+    // Delete project with projectName if it exists, ignore errors
+    try {   
+      await request(app)
+        .delete(`/api/projects?name=${projectName}&ignoreErrors=true`) 
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send();
+    } catch (error) {
+      // Ignore errors
+    }
+  });
 
-        const response = await request(app)
-            .put('/api/projects')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send(projectData);
+  test("Create a new project", async () => {
+    const projectData = {
+      name: projectName,
+      gitRepo: "http://github.com/example/repo.git",
+    };
+    let response = await request(app)
+      .put("/api/projects")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send(projectData);
+    expect(response.statusCode).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    projectId = response.body.id;
 
-        expect(response.statusCode).toBe(201);
-        expect(response.body).toHaveProperty('id');
-    });
+    response = await request(app)
+      .get("/api/projects")
+      .set("Authorization", `Bearer ${adminToken}`);
+    expect(response.statusCode).toBe(200);
+    expect(Array.isArray(response.body)).toBeTruthy();
 
-    test('Create a new project - bad request', async () => {
-        const projectData = {
-            gitRepo: 'http://github.com/example/repo.git',
-            bucket: 'example-bucket'
-        };
+    response = await request(app)
+      .delete(`/api/projects?id=${projectId}`) 
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send();
+    expect(response.statusCode).toBe(204);
+  });
 
-        const response = await request(app)
-            .put('/api/projects')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send(projectData);
+  test("Create a new project - bad request", async () => {
+    const projectData = {
+      gitRepo: "http://github.com/example/repo.git",
+      bucket: "example-bucket",
+    };
+    const response = await request(app)
+      .put(`/api/projects?name=${projectName}&id=${projectId}`) 
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send(projectData);
 
-        expect(response.statusCode).toBe(400);
-    });
+    expect(response.statusCode).toBe(400);
+  });
 
-    test('Delete a project - bad request', async () => {
-        const response = await request(app)
-            .delete('/api/projects')
-            .set('Authorization', `Bearer ${adminToken}`);
-        expect(response.statusCode).toBe(400);
-    });
+  test("Create a new project - bad request", async () => {
+    const projectData = {
+      gitRepo: "http://github.com/example/repo.git",
+      bucket: "example-bucket",
+    };
+    const response = await request(app)
+      .put("/api/projects")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send(projectData);
 
-    test('Delete a project', async () => {
-        const response = await request(app)
-            .delete('/api/projects')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: projectName });
-        expect(response.statusCode).toBe(204);
-    });
+    expect(response.statusCode).toBe(400);
+  });
 
-    test('Retrieve all projects', async () => {
-        const response = await request(app)
-            .get('/api/projects')
-            .set('Authorization', `Bearer ${adminToken}`);
-
-        expect(response.statusCode).toBe(200);
-        expect(Array.isArray(response.body)).toBeTruthy();
-    });
+  test("Delete a project - bad request", async () => {
+    const response = await request(app)
+      .delete("/api/projects")
+      .set("Authorization", `Bearer ${adminToken}`);
+    expect(response.statusCode).toBe(400);
+  });
 });
-

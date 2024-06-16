@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
+const { createApiToken } = require('../middleware/authJwt');
 
 const signIn = async (req, res) => {
     const prisma = req.prisma
@@ -60,24 +61,6 @@ const signIn = async (req, res) => {
     } catch(error) {
         return res.status(500).send({ message: error.message });
     };
-};
-
-const createApiToken = async (req, res) => {
-    const token = jwt.sign({
-            // Need a userid due to the config-user db relation
-            id: req.userId,
-            roles: ["ROLE_USER"],
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: '1y',
-        });
-
-    res.status(200).send({
-        accessToken: token
-    });
 };
 
 // // Generate a new refresh token

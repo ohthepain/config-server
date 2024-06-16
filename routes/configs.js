@@ -13,7 +13,8 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
                 return res.status(400).send("If you specify id you cannot specify branchId or projectId")
             }
             const config = await prisma.config.findUnique({
-                where: { id: parseInt(id) }
+                where: { id: parseInt(id) },
+                include: { branch: true }
             });
             if (config) {
                 return res.status(200).send(config);
@@ -31,7 +32,8 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
             }
         } else if (projectId) {
             const configs = await prisma.config.findMany({
-                where: { projectId: projectId }
+                where: { projectId: projectId },
+                include: { branch: true }
             });
             if (configs && configs.length > 0) {
                 return res.status(200).send(configs);
@@ -39,7 +41,9 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
                 return res.status(404).send(`No configs found for projectId <${projectId}>`);
             }
         } else {
-            return res.status(200).send(await prisma.config.findMany());
+            return res.status(200).send(await prisma.config.findMany({
+                include: { branch: true }
+            }));
         }
     } catch (error) {
         console.error(error);
@@ -86,6 +90,10 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
             }
             branchId = branch.id
         }
+
+        if (!req.userId) {
+            userId = req.userId;
+        }
       
         const newConfig = await req.prisma.config.create({
             data: {
@@ -93,7 +101,7 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
                 projectId: projectId,
                 branchId: branchId,
                 gitHash: gitHash,
-                userId: req.userId || "api token",
+                userId: req.userId,
             }
         });
 

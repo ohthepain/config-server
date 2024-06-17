@@ -23,13 +23,14 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
             }
         } else if (branchId) {
             const configs = await prisma.config.findMany({
-                where: { branchId: branchId }
+                where: { branchId: branchId },
+                include: { branch: true }
             });
-            if (configs && configs.length > 0) {
-                return res.status(200).send(configs);
-            } else {
-                return res.status(404).send(`No configs found for branchId <${branchId}>`);
-            }
+            // if (configs && configs.length > 0) {
+            return res.status(200).send(configs);
+            // } else {
+            //     return res.status(404).send(`No configs found for branchId <${branchId}>`);
+            // }
         } else if (projectId) {
             const configs = await prisma.config.findMany({
                 where: { projectId: projectId },

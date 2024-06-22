@@ -4,10 +4,12 @@ var router = express.Router();
 const { verifyToken, isUser, isAdmin } = require('../middleware/authJwt')
 
 router.put('/', [verifyToken, isUser], async function(req, res, next) {
-  const { projectId, gitBranch } = req.body
-  if (!projectId || !gitBranch) {
+  const branch = req.body
+  if (!branch.projectId || !branch.gitBranch) {
     return res.status(400).send('Branch: projectId and git branch are required');
   }
+
+  const projectId = branch.projectId
 
   try {
     const prisma = req.prisma
@@ -16,14 +18,14 @@ router.put('/', [verifyToken, isUser], async function(req, res, next) {
       return res.status(404).send('Project not found');
     }
     
-    const branch = await prisma.branch.create({
-      data: {
-        projectId: project.id,
-        gitBranch: gitBranch,
-      },
-    })
+    const _branch = await prisma.branch.update(
+        {
+            where: { id: branch.id },
+            data: branch
+        }
+    );
 
-    res.send(branch)
+    res.send(_branch)
   } catch (error) {
     console.log(error)
     next(error)
@@ -31,17 +33,16 @@ router.put('/', [verifyToken, isUser], async function(req, res, next) {
 });
 
 router.delete('/', [verifyToken, isAdmin], async function(req, res, next) {
-  const { gitBranch, projectId } = req.body
-  if (!gitBranch || !projectId) {
-    return res.status(400).send('Branch gitBranch and projectId are required');
+  const { id } = req.query
+  if (!id) {
+    return res.status(400).send('Branch id is required');
   }
 
   try {
     const prisma = req.prisma
     await prisma.branch.delete({
       where: {
-        gitBranch: gitBranch,
-        projectId: projectId
+        id: id
       },
     })
     res.status(204).send([]);

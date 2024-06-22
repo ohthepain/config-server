@@ -14,7 +14,7 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
             }
             const config = await prisma.config.findUnique({
                 where: { id: parseInt(id) },
-                include: { branch: true }
+                include: { branch: true, environments: true }
             });
             if (config) {
                 return res.status(200).send(config);
@@ -24,7 +24,7 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
         } else if (branchId) {
             const configs = await prisma.config.findMany({
                 where: { branchId: branchId },
-                include: { branch: true }
+                include: { branch: true, environments: true }
             });
             // if (configs && configs.length > 0) {
             return res.status(200).send(configs);

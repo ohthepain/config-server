@@ -54,15 +54,19 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
 
 // New config
 router.post('/', [verifyToken, isUser], async function(req, res, next) {
-    var { projectName, branchName, gitHash, branchId, projectId } = req.body;
+    var { projectName, branchName, gitBranch, gitHash, branchId, projectId } = req.body;
+
+    if (!gitBranch) {
+        gitBranch = branchName;
+    }
 
     if (!gitHash) {
         return res.status(400).send('gitHash is required');
     }
 
     if (branchId) {
-        if (projectName || branchName) {
-            return res.status(400).send('Cannot specify branchId and projectName or branchName');
+        if (projectName || gitBranch) {
+            return res.status(400).send('Cannot specify branchId and projectName or gitBranch');
         }
     }
 
@@ -70,8 +74,8 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
         return res.status(400).send('Cannot specify projectId and projectName');
     }
 
-    if (!projectName || !branchName) {
-        return res.status(400).send('All of projectId, branchId and gitHash are required');
+    if (!projectName || !gitBranch) {
+        return res.status(400).send('All of projectId, gitBranch and gitHash are required');
     }
 
     try {
@@ -85,7 +89,14 @@ router.post('/', [verifyToken, isUser], async function(req, res, next) {
         }
 
         if (!branchId) {
-            const branch = await prisma.branch.findUnique({ where: { name: branchName } });
+            const branch = await prisma.branch.findUnique({ 
+                where: {
+                    projectId_gitBranch: {
+                        projectId: projectId,
+                        gitBranch: gitBranch
+                    }
+                }
+            });
             if (!branch) {
                 return res.status(404).send('Branch not found');
             }

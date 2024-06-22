@@ -18,14 +18,20 @@ router.put('/', [verifyToken, isUser], async function(req, res, next) {
       return res.status(404).send('Project not found');
     }
     
-    const _branch = await prisma.branch.update(
-        {
-            where: { id: branch.id },
+    if (branch.id) {
+        const _branch = await prisma.branch.update(
+            {
+                where: { id: branch.id },
+                data: branch
+            }
+        );
+        res.send(_branch);
+    } else {
+        const _branch = await prisma.branch.create({
             data: branch
-        }
-    );
-
-    res.send(_branch)
+          })  
+          res.send(_branch);
+    }
   } catch (error) {
     console.log(error)
     next(error)

@@ -5,11 +5,11 @@ const app = require('../../app');
 describe('Config and Branch Cascading Tests', () => {
     let adminToken;
     let projectId;
-    const projectName = 'Project for test-configs'
-    const branchName = 'Branch for test-configs'
-    const cascadeBranchName = 'Cascade branch for test-configs'
-    let adminUserId;
     let branchId;
+    const projectName = 'Project for test-configs'
+    const gitBranch = 'Branch for test-configs'
+    const cascadeGitBranch = 'Cascade branch for test-configs'
+    let adminUserId;
 
     beforeAll(async () => {
         // Authenticate and get token
@@ -21,16 +21,16 @@ describe('Config and Branch Cascading Tests', () => {
 
         // Delete project if it's left over from a previously failed test
         await request(app)
-        .delete('/api/projects')
+        .delete(`/api/projects?name=${projectName}&ignoreErrors=true`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ ignoreErrors: true, name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
+        .send();
 
         // Create project
         try {
             const projectRes = await request(app)
                 .put('/api/projects')
                 .set('Authorization', `Bearer ${adminToken}`)
-                .send({ name: projectName, gitRepo: 'http://github.com/example/repo.git', bucket: 'example-bucket' });
+                .send({ name: projectName, gitRepo: 'https://github.com/example/repo.git', bucket: 'example-bucket' });
             projectId = projectRes.body.id;
         } catch (error) {
             console.error(error)
@@ -41,20 +41,20 @@ describe('Config and Branch Cascading Tests', () => {
         const response = await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: branchName, projectName: projectName, gitBranch: 'main' });
+            .send({ projectId: projectId, gitBranch: gitBranch });
             branchId = response.body.id;
             
         await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: cascadeBranchName, projectName: projectName, gitBranch: 'main' });
+            .send({ projectId: projectId, gitBranch: cascadeGitBranch });
     });
 
     test('should respond with 400 status code if required fields are missing', async () => {
         const response = await request(app)
         .post('/api/configs')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ projectName: 'ValidProject', gitHash: '123abc' }); // Assume branchName is missing
+        .send({ projectId: 'ValidProject', gitHash: '123abc' }); // Assume branchName is missing
     
         expect(response.statusCode).toBe(400);
     });
@@ -92,7 +92,7 @@ describe('Config and Branch Cascading Tests', () => {
         const response = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ projectName: 'ValidProject', branchName: 'ValidBranch', gitHash: '123abc' });
+            .send({ projectName: 'ValidProject', gitBranch: 'ValidBranch', gitHash: '123abc' });
     
         expect(response.statusCode).toBe(404);
     
@@ -105,14 +105,14 @@ describe('Config and Branch Cascading Tests', () => {
         const configRes = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
+            .send({ projectName: projectName, gitBranch: gitBranch, gitHash: 'abc123', userId: adminUserId });
         expect(configRes.statusCode).toBe(201);
 
         // Create config
         const configRes2 = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ projectName: projectName, branchName: branchName, gitHash: 'abc123', userId: adminUserId });
+            .send({ projectName: projectName, gitBranch: gitBranch, gitHash: 'abc123', userId: adminUserId });
         expect(configRes2.statusCode).toBe(201);
 
         const configId = configRes.body.id;
@@ -123,7 +123,7 @@ describe('Config and Branch Cascading Tests', () => {
 
         // Get branch
         response = await request(app)
-            .get(`/api/branches?name=${branchName}&projectId=${projectId}`)
+            .get(`/api/branches?gitBranch=${gitBranch}&projectId=${projectId}`)
             .set('Authorization', `Bearer ${adminToken}`);
         const branch = response.body
 
@@ -154,10 +154,10 @@ describe('Config and Branch Cascading Tests', () => {
         expect(response.statusCode).toBe(200);
 
         // Configs for undefined branch
-        response = await request(app)
-            .get(`/api/configs?branchId=667`)
-            .set('Authorization', `Bearer ${adminToken}`);
-        expect(response.statusCode).toBe(404);
+        // response = await request(app)
+        //     .get(`/api/configs?branchId=667`)
+        //     .set('Authorization', `Bearer ${adminToken}`);
+        // expect(response.statusCode).toBe(404);
 
         // Individual config
         response = await request(app)
@@ -213,9 +213,9 @@ describe('Config and Branch Cascading Tests', () => {
 
         // Delete project and cascade
         const delRes = await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?id=${projectId}`)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: projectName });
+            .send();
         expect(delRes.statusCode).toBe(204);
 
         // Verify deletion

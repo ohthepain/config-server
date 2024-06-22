@@ -25,14 +25,14 @@ router.put("/", [verifyToken, isAdmin], async function (req, res, next) {
       });
       res.send(updatedProject);
     } else {
-        await prisma.project.create({
+        const newProject = await prisma.project.create({
           data: {
             name: project.name,
             gitRepo: project.gitRepo,
             bucket: project.bucket,
           },
         });
-        res.status(201).send(project);
+        res.status(201).send(newProject);
     }
   } catch (error) {
     console.log(error);

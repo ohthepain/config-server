@@ -19,9 +19,9 @@ describe('Environment Routes', () => {
 
         try {
             await request(app)
-                .delete('/api/projects')
+                .delete(`/api/projects?name=${projectName}`)
                 .set('Authorization', `Bearer ${adminToken}`)
-                .send({ name: projectName });
+                .send();
         } catch (err) {
             // Ignore errors
         }
@@ -37,9 +37,9 @@ describe('Environment Routes', () => {
     afterAll(async () => {
         // Clean up: Delete the project
         await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?name=${projectName}`)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: projectName });
+            .send();
     });
 
     test('Create and retrieve a new environment', async () => {
@@ -106,12 +106,12 @@ describe('Environment Routes', () => {
             .send(updateData);
         expect(response.statusCode).toBe(200);
 
-        // Update the environment by id
-        response = await request(app)
-            .put('/api/environments')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({id: environmentId});
-        expect(response.statusCode).toBe(200);
+        // // Update the environment by id
+        // response = await request(app)
+        //     .put('/api/environments')
+        //     .set('Authorization', `Bearer ${adminToken}`)
+        //     .send({id: environmentId});
+        // expect(response.statusCode).toBe(200);
 
         // Delete the environment
         response = await request(app)

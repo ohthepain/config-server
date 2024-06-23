@@ -47,13 +47,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/configs', configsRouter)
 app.use('/api/branches', branchesRouter)
 app.use('/api/environments', environmentsRouter)
 app.use('/api/projects', projectsRouter)
 app.use('/api/auth', authRouter)
+app.use('/', indexRouter);
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'hello world' });
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

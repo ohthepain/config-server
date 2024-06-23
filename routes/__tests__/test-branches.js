@@ -5,8 +5,8 @@ const app = require('../../app');
 describe('Branch Routes', () => {
     let adminToken;
     let projectId;
-    const branchName = "TestBranchfortestbranches"
-    const cascadeBranchName = 'Cascade Branch'
+    const gitBranch = "TestBranchfortestbranches"
+    const cascadeGitBranch = 'Cascade Branch'
     const projectName = "TestProjectForBranches"
 
     beforeAll(async () => {
@@ -28,33 +28,35 @@ describe('Branch Routes', () => {
                 gitRepo: 'http://github.com/example/repo.git',
                 bucket: 'example-bucket'
             });
-        projectId = projectResponse.body.id; // Adjust according to actual response structure
+        projectId = projectResponse.body.id;
     });
 
-    test('Create a new branch for cascade deletion', async () => {
-        const branchData = {
-            name: cascadeBranchName,
-            projectName: projectName,
-            gitBranch: 'main'
+    test('Create a new branches for normal and cascade deletion', async () => {
+        // Get project by name
+        let response = await request(app)
+            .get(`/api/projects?name=${projectName}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+        const project = response.body;
+
+        let branchData = {
+            gitBranch: cascadeGitBranch,
+            projectId: project.id
         };
 
-        const response = await request(app)
+        response = await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
             .send(branchData);
 
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveProperty('id');
-    });
 
-    test('Create a new branch for api deletion', async () => {
-        const branchData = {
-            name: branchName,
-            projectName: projectName,
-            gitBranch: 'main'
+        branchData = {
+            gitBranch: gitBranch,
+            projectId: project.id
         };
 
-        var response = await request(app)
+        response = await request(app)
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
             .send(branchData);
@@ -64,7 +66,7 @@ describe('Branch Routes', () => {
 
         // Get branch by name
         response = await request(app)
-            .get(`/api/branches?name=${branchName}&projectId=${projectId}`)
+            .get(`/api/branches?gitBranch=${gitBranch}&projectId=${projectId}`)
             .set('Authorization', `Bearer ${adminToken}`);
         expect(response.statusCode).toBe(200);
         const branch = response.body
@@ -77,7 +79,7 @@ describe('Branch Routes', () => {
 
         // Get branch by id and name = BAD REQUEST
         response = await request(app)
-            .get(`/api/branches?id=${branch.id}&name=${branchName}`)
+            .get(`/api/branches?id=${branch.id}&gitBranch=${gitBranch}`)
             .set('Authorization', `Bearer ${adminToken}`);
         expect(response.statusCode).toBe(400);
 
@@ -92,22 +94,21 @@ describe('Branch Routes', () => {
             .get(`/api/branches`)
             .set('Authorization', `Bearer ${adminToken}`);
         expect(response.statusCode).toBe(200);
-    });
 
-    test('Delete a branch', async () => {
-        const response = await request(app)
-            .delete('/api/branches')
+        // Delete a branch
+        response = await request(app)
+            .delete(`/api/branches?id=${branch.id}`)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: branchName, projectId: projectId });
+            .send();
         expect(response.statusCode).toBe(204);
     });
 
     afterAll(async () => {
         // Clean up: Delete the project
         await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?name=${projectName}`) 
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: projectName });
+            .send();
     });
 });
 

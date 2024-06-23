@@ -77,9 +77,20 @@ router.delete("/", [verifyToken, isAdmin], async function (req, res, next) {
 });
 
 router.get("/", [verifyToken, isUser], async function (req, res, next) {
+    const { name } = req.query;
   // res.render('index', { title: 'Projects' });
-  const allProjects = await req.prisma.project.findMany();
-  res.send(allProjects);
+  if (name) {
+    const project = await req.prisma.project.findUnique({
+      where: { name: name },
+    });
+    if (!project) {
+      return res.status(404).send("Project not found");
+    }
+    return res.status(200).send(project);
+  } else {
+    const allProjects = await req.prisma.project.findMany();
+    res.send(allProjects);
+  }
 });
 
 module.exports = router;

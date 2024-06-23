@@ -22,8 +22,8 @@ router.put('/', [verifyToken, isUser], async function (req, res, next) {
         warningMessage
     } = req.body;
 
-    if (!id && !name || !projectId) {
-        return res.status(400).send('Environment: please specify name and or projectId)');
+    if (!id && ( !name || !projectId)) {
+        return res.status(400).send('Environment: please specify id or name and projectId)');
     }
 
     try {
@@ -174,7 +174,7 @@ router.get('/', [verifyToken, isUser], async function (req, res, next) {
             return res.send(environments);
         } else {
             console.log(`get ALL environments`)
-            const projectEnvirenvironmentsonments = await prisma.environment.findMany();
+            const environments = await prisma.environment.findMany();
             return res.send(environments);
         }
     } catch (error) {

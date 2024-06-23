@@ -68,22 +68,30 @@ router.get('/', [verifyToken, isUser], async function(req, res, next) {
         const branch = await prisma.branch.findUnique({ where: { id: id }})
         return res.send(branch)
     }
-    else if (projectId) {
-        const branches = await prisma.branch.findMany({ where: { projectId: projectId }})
-        return res.send(branches)
-    }
     else if (gitBranch) {
         if (!projectId) {
             return res.status(400).send("Branch gitBranch requires projectId (think dev, main,ect)");  
         } else {
-            const branch = await prisma.branch.findUnique({ where: { gitBranch: gitBranch, projectId: projectId }})
+            const branch = await prisma.branch.findUnique({
+                where: {
+                    projectId_gitBranch: {
+                        projectId: projectId,
+                        gitBranch: gitBranch
+                    }
+                }
+            });
             if (branch) {
                 return res.send(branch)
             } else {
                 return res.status(404).send(`Could not find branch with gitBranch $<gitBranch> for projectId ${projectId}`)
             }
         }
-    } else {
+    }
+    else if (projectId) {
+        const branches = await prisma.branch.findMany({ where: { projectId: projectId }})
+        return res.send(branches)
+    } 
+    else {
         const all = await req.prisma.branch.findMany()
         return res.send(all);
     }

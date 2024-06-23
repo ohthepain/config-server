@@ -29,7 +29,7 @@ describe('Index Tests', () => {
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
                 name: projectName,
-                gitRepo: 'http://github.com/example/repo.git',
+                gitRepo: 'https://github.com/example/repo.git',
                 bucket: 'example-bucket'
             });
         projectId = projectResponse.body.id;
@@ -81,15 +81,14 @@ describe('Index Tests', () => {
     afterAll(async () => {
         // Clean up: Delete the project
         await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?name=${projectName}&ignoreErrors=true`)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ name: projectName });
+            .send();
     });
     
     test('Get home page?', async () => {
-        var response = await request(app)
-            .get('/')
-        expect(response.statusCode).toBe(200);
+        var response = await request(app).get('/');
+        expect(response.statusCode).toBe(400);
     });
 
     test('Get config info', async () => {

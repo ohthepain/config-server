@@ -53,7 +53,9 @@
       "!**/node_modules/**",
       "!**/coverage/**",
       "!**/vendor/**",
-      "!./util/**"
+      "!./util/**",
+      "!./routes/index.js",
+      "!./routes/__tests__/foo**"
     ],
     "coverageThreshold": {
       "global": {

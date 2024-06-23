@@ -14,9 +14,9 @@ describe('Project Routes', () => {
 
         // Delete project if it's left over from a previously failed test
         await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?name=${projectName}&ignoreErrors=true`) 
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ ignoreErrors: true, name: projectName });
+            .send();
     })
 
     test('Test authentication', async () => {
@@ -62,8 +62,8 @@ describe('Project Routes', () => {
 
     afterAll(async () => {
         await request(app)
-            .delete('/api/projects')
+            .delete(`/api/projects?name=${projectName}&ignoreErrors=true`)
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ ignoreErrors: true, name: projectName });
+            .send();
     })
 });

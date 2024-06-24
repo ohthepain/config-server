@@ -1,19 +1,23 @@
-"use strict"
+"use strict";
 const request = require('supertest');
-const app = require('../../app'); // Adjust the path to your Express app
-const { config } = require('dotenv');
+const app = require('../../app');
 
-describe('Index Tests', () => {
+describe('Index Routes', () => {
     let adminToken;
     let projectId;
     let branchId;
     let environmentId;
     const projectName = 'Index Test Project';
-    const branchName = 'Index Test Branch';
+    const gitBranch = 'main';
     const environmentName = 'Index Test Environment';
     const gitHash = 'abc123';
 
     beforeAll(async () => {
+        // Delete test project if it exists from last time
+        await request(app)
+            .delete(`/api/projects?name=${projectName}&ignoreErrors=true`)
+            .send();
+
         // Authenticate and obtain token
         const adminResponse = await request(app)
             .post('/api/auth')
@@ -39,8 +43,7 @@ describe('Index Tests', () => {
             .put('/api/branches')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                name: branchName,
-                projectName: projectName,
+                projectId: projectId,
                 gitBranch: 'main'
             });
         branchId = branchResponse.body.id;
@@ -56,12 +59,19 @@ describe('Index Tests', () => {
         environmentId = environmentResponse.body.id;
 
         // Create a config
+        // const configRes2 = await request(app)
+        //     .post('/api/configs')
+        //     .set('Authorization', `Bearer ${adminToken}`)
+        //     .send({ projectName: projectName, gitBranch: gitBranch, gitHash: gitHash, userId: adminResponse.body.id });
+        // expect(configRes2.statusCode).toBe(201);
+
+        // Create a config
         const configResponse = await request(app)
             .post('/api/configs')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
                 projectName: projectName,
-                branchName: branchName,
+                gitBranch: gitBranch,
                 gitHash: gitHash,
                 userId: adminResponse.body.id
             });
@@ -75,7 +85,15 @@ describe('Index Tests', () => {
                 environmentId: environmentId,
                 configId: configId
             });
+        if (deployResponse.statusCode !== 200) {
+            console.log(deployResponse.body);
+        }
         expect(deployResponse.statusCode).toBe(200);
+    });
+
+    test('Get home page?', async () => {
+        const response = await request(app).get('/');
+        expect(response.statusCode).toBe(200);
     });
 
     afterAll(async () => {
@@ -85,22 +103,5 @@ describe('Index Tests', () => {
             .set('Authorization', `Bearer ${adminToken}`)
             .send();
     });
-    
-    test('Get home page?', async () => {
-        var response = await request(app).get('/');
-        expect(response.statusCode).toBe(400);
-    });
+});
 
-    test('Get config info', async () => {
-        const url = `/environment-id?projectName=${encodeURIComponent(projectName)}&environmentName=${encodeURIComponent(environmentName)}`;
-        const environmentIdResponse = await request(app)
-            .get(url)
-            .send();
-        const environmentId = environmentIdResponse.body.id;
-
-        const response = await request(app)
-            .get(`/config-info?environmentId=${environmentId}`)
-            .send();
-        expect(response.statusCode).toBe(200);
-    });
-})

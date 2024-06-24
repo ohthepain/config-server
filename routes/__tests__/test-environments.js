@@ -144,6 +144,11 @@ describe('Environment Routes', () => {
         expect(response.statusCode).toBe(404);
     });
 
+    test('Get home page?', async () => {
+        const response = await request(app).get('/');
+        expect(response.statusCode).toBe(200);
+    });
+
     test('Retrieve all environments', async () => {
         const response = await request(app)
             .get('/api/environments')

@@ -34,6 +34,7 @@ enum ConfigStatus {
 model Project {
     id           String        @id @default(uuid())
     name         String        @unique
+    // configs   Config[]
     branches     Branch[]
     gitRepo      String?       @db.VarChar(1024)
     bucket       String?       @db.VarChar(1024)
@@ -46,6 +47,7 @@ model Branch {
     id        String   @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    // name      String   @db.VarChar(255)
     gitBranch String?  @db.VarChar(255)
     project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId String
@@ -147,9 +149,16 @@ model YogaSession {
     yogaUser YogaUser @relation(fields: [yogaUserId], references: [id], onDelete: Cascade)
 }
 
+model Device {
+    id           String        @id
+    installs     Install[]
+}
+
 model Install {
     id           String        @id @default(uuid())
     yogaUserId   String
+    deviceId     String
+    device       Device        @relation(fields: [deviceId], references: [id])
     yogaUser     YogaUser      @relation(fields: [yogaUserId], references: [id])
     createdAt    DateTime      @default(now())
     updatedAt    DateTime      @updatedAt

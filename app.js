@@ -4,6 +4,8 @@ const express = require('express');
 const path = require('path');
 const logger = require('morgan');
 const cors = require('cors');
+const { PrismaClient } = require('@prisma/client')
+const { readSecret } = require('./services/secrets')
 
 const tracer = require('dd-trace').init({
     service: 'config-server',
@@ -20,11 +22,16 @@ var authRouter = require('./routes/auth');
 var usersRouter = require('./routes/users');
 var projectsRouter = require('./routes/projects');
 
-const { PrismaClient } = require('@prisma/client')
+const dbConnectionString = readSecret('database_url');
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: dbConnectionString,
+    },
+  },
+});
 
 var app = express();
-
-const prisma = new PrismaClient()
 
 app.use(async (req, res, next) => {
   req.prisma = prisma
